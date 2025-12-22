@@ -1,4 +1,5 @@
-﻿using HelpDeskApi.Model;
+﻿using HelpDeskApi.DTOs;
+using HelpDeskApi.Model;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HelpDeskApi.Service
@@ -7,6 +8,6 @@ namespace HelpDeskApi.Service
     {
         Task<List<User>> GetAll();
         Task<User> GetId(int id);
-        Task<User> CreatedUser(User user);
+        Task<User> CreatedUser(CreateUserDto dto);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using HelpDeskApi.Data;
+using HelpDeskApi.DTOs;
 using HelpDeskApi.Model;
 using HelpDeskApi.Service;
 using Microsoft.AspNetCore.Mvc;
@@ -34,12 +35,12 @@ namespace HelpDeskApi.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreatedUser(User user)
+        public async Task<IActionResult> CreatedUser([FromBody] CreateUserDto dto)
         {
-            if (!EmailValido(user.Email))
+            if (!EmailValido(dto.Email))
                 return BadRequest(new { message = "Email invalido." });
 
-            await _service.CreatedUser(user);
+            var user = await _service.CreatedUser(dto);
 
             return CreatedAtAction(nameof(GetId), new { id = user.Id }, user);
 

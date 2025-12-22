@@ -1,5 +1,7 @@
 ﻿using HelpDeskApi.Data;
+using HelpDeskApi.DTOs;
 using HelpDeskApi.Model;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace HelpDeskApi.Service
@@ -13,8 +15,16 @@ namespace HelpDeskApi.Service
             _context = context;
         }
 
-        public async Task<User> CreatedUser(User user)
+        public async Task<User> CreatedUser(CreateUserDto dto)
         {
+            var user = new User
+            {
+                Name = dto.Name,
+                Email = dto.Email,
+                Password = dto.Password,
+                DepartmentId = dto.DepartmentId
+            };
+
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             return user;
