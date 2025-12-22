@@ -1,6 +1,4 @@
-﻿using HelpDeskApi.Domain.Enum;
-
-namespace HelpDeskApi.Model
+﻿namespace HelpDeskApi.Model
 {
     public class User
     {
@@ -11,7 +9,7 @@ namespace HelpDeskApi.Model
         public string Password { get; set; } = null!;
 
         public int DepartmentId { get; set;  }
-        public DepartmentEnum Department { get; set;  }
+        public Department Department { get; set; } = null!;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }

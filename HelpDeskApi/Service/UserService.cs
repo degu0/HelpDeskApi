@@ -1,8 +1,6 @@
 ﻿using HelpDeskApi.Data;
 using HelpDeskApi.Model;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Net.Mail;
 
 namespace HelpDeskApi.Service
 {

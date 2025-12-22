@@ -9,41 +9,53 @@ namespace HelpDeskApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UserController : IUserService
+    public class UserController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        public UserController(AppDbContext context)
+        private readonly IUserService _service;
+        public UserController(IUserService service)
         {
-            _context = context;
+            _service = service;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var users = await _context.Users.ToListAsync();
-            return Ok(users);
+            return Ok(await _service.GetAll());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetId(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-
+            var user = await _service.GetId(id);
             if (user == null)
-                return NotFound(new { mensagem = "Contato não encontrado." });
+                return NotFound(new { mensagem = "Usuario não encontrado." });
 
             return Ok(user);
         }
 
+        [HttpPost]
         public async Task<IActionResult> CreatedUser(User user)
         {
             if (!EmailValido(user.Email))
                 return BadRequest(new { message = "Email invalido." });
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            await _service.CreatedUser(user);
 
-            return CreatedAtActionResult(nameof(GetId), new (id = user.Id), user);
+            return CreatedAtAction(nameof(GetId), new { id = user.Id }, user);
+
+        }
+
+        private bool EmailValido(string email)
+        {
+            try
+            {
+                var mail = new MailAddress(email);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
     }

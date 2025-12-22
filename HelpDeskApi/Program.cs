@@ -1,4 +1,5 @@
 using HelpDeskApi.Data;
+using HelpDeskApi.Service;
 using Microsoft.EntityFrameworkCore;
 using System;
 
@@ -12,9 +13,14 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+
+
+builder.Services.AddEndpointsApiExplorer();
+
 var app = builder.Build();
 
-builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
 
 // Configure the HTTP request pipeline.
