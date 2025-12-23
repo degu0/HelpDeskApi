@@ -1,5 +1,6 @@
 using HelpDeskApi.Data;
 using HelpDeskApi.Service;
+using HelpDeskApi.Services;
 using Microsoft.EntityFrameworkCore;
 using System;
 
@@ -15,6 +16,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<ITicketService, TicketService>();
 
 
 builder.Services.AddEndpointsApiExplorer();

@@ -1,4 +1,5 @@
 ﻿using HelpDeskApi.Model;
+using HelpDeskApi.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace HelpDeskApi.Data
@@ -13,6 +14,8 @@ namespace HelpDeskApi.Data
         public DbSet<User> Users { get; set; }
 
         public DbSet<Department> Departments {get; set;}
+
+        public DbSet<Ticket> Tickets { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
