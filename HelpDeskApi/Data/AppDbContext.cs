@@ -31,6 +31,19 @@ namespace HelpDeskApi.Data
                     new Department { Id = 7, Name = "Logistics" },
                     new Department { Id = 8, Name = "Sales" }
                 );
+
+            modelBuilder.Entity<Ticket>()
+                    .HasOne(t => t.CreatedBy)
+                    .WithMany()
+                    .HasForeignKey(t => t.CreatedById)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Ticket>()
+                .HasOne(t => t.AssignedAgent)
+                .WithMany()
+                .HasForeignKey(t => t.AssignedAgentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
         }
     }
 }

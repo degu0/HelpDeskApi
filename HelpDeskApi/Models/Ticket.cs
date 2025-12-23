@@ -16,8 +16,8 @@ namespace HelpDeskApi.Models
         public int CreatedById { get; set; }
         public User CreatedBy { get; set; } = null!;
 
-        public int? AssgnedAgentId { get; set; }
-        public User? AssgnedAgent { get; set; }
+        public int? AssignedAgentId { get; set; }
+        public User? AssignedAgent { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

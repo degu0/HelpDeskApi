@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HelpDeskApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251222142721_InitialCreate")]
+    [Migration("20251223215543_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -117,6 +117,51 @@ namespace HelpDeskApi.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("HelpDeskApi.Models.Ticket", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AssignedAgentId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("CreatedById")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedAgentId");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.ToTable("Tickets");
+                });
+
             modelBuilder.Entity("HelpDeskApi.Model.User", b =>
                 {
                     b.HasOne("HelpDeskApi.Model.Department", "Department")
@@ -124,6 +169,32 @@ namespace HelpDeskApi.Migrations
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Department");
+                });
+
+            modelBuilder.Entity("HelpDeskApi.Models.Ticket", b =>
+                {
+                    b.HasOne("HelpDeskApi.Model.User", "AssignedAgent")
+                        .WithMany()
+                        .HasForeignKey("AssignedAgentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("HelpDeskApi.Model.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HelpDeskApi.Model.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AssignedAgent");
+
+                    b.Navigation("CreatedBy");
 
                     b.Navigation("Department");
                 });
