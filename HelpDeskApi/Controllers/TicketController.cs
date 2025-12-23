@@ -1,4 +1,5 @@
-﻿using HelpDeskApi.Model;
+﻿using HelpDeskApi.DTOs;
+using HelpDeskApi.Model;
 using HelpDeskApi.Models;
 using HelpDeskApi.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -33,9 +34,9 @@ namespace HelpDeskApi.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateTicket(Ticket ticket)
+        public async Task<IActionResult> CreateTicket([FromBody] CreateTicketDto dto)
         {
-            await _service.CreatTicket(ticket);
+            var ticket = await _service.CreatTicket(dto);
             return CreatedAtAction(nameof(GetById), new { id = ticket.Id }, ticket);
         }
     }

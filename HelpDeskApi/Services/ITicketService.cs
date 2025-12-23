@@ -1,4 +1,5 @@
-﻿using HelpDeskApi.Models;
+﻿using HelpDeskApi.DTOs;
+using HelpDeskApi.Models;
 
 namespace HelpDeskApi.Services
 {
@@ -8,6 +9,6 @@ namespace HelpDeskApi.Services
 
         Task<Ticket> GetById(int id);
 
-        Task<Ticket> CreatTicket(Ticket ticket);
+        Task<Ticket> CreatTicket(CreateTicketDto dto);
     }
 }

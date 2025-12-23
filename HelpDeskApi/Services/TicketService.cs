@@ -1,4 +1,5 @@
 ﻿using HelpDeskApi.Data;
+using HelpDeskApi.DTOs;
 using HelpDeskApi.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,8 +12,16 @@ namespace HelpDeskApi.Services
         {
             _context = context;
         }
-        public async Task<Ticket> CreatTicket(Ticket ticket)
+        public async Task<Ticket> CreatTicket(CreateTicketDto dto)
         {
+            var ticket = new Ticket
+            {
+                Title = dto.Title,
+                Description = dto.Description,
+                DepartmentId = dto.DepartmentId,
+                CreatedById = dto.CreatedById
+            };
+
             _context.Tickets.Add(ticket);
             await _context.SaveChangesAsync();
             return ticket;
