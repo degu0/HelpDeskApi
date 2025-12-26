@@ -1,9 +1,8 @@
-﻿using HelpDeskApi.Data;
-using HelpDeskApi.DTOs;
-using HelpDeskApi.Model;
+﻿using HelpDeskApi.DTOs;
 using HelpDeskApi.Service;
+using HelpDeskApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Net.Mail;
 
 namespace HelpDeskApi.Controllers
@@ -13,9 +12,14 @@ namespace HelpDeskApi.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _service;
-        public UserController(IUserService service)
+
+        private readonly AuthService _authService;
+        private readonly JwtService _jwtService;
+        public UserController(IUserService service, AuthService authService, JwtService jwtService)
         {
             _service = service;
+            _authService = authService;
+            _jwtService = jwtService;
         }
 
         [HttpGet]
@@ -24,6 +28,7 @@ namespace HelpDeskApi.Controllers
             return Ok(await _service.GetAll());
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetId(int id)
         {
@@ -52,17 +57,17 @@ namespace HelpDeskApi.Controllers
             if(!EmailValido(dto.Email))
                 return Unauthorized(new { message = "Email invalido." });
 
-            var user = await _service.Login(dto);
+            var user = await _authService.Login(dto);
 
             if(user == null)
                 return Unauthorized(new { message = "Email ou senha inválidos" });
 
+            var token = _jwtService.GenerateToken(user);
+
 
             return Ok(new
             {
-                user.Id,
-                user.Name,
-                user.Email,
+               token
             });
         }
 

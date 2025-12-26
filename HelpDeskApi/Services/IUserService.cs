@@ -10,6 +10,5 @@ namespace HelpDeskApi.Service
         Task<List<User>> GetAll();
         Task<User> GetId(int id);
         Task<User> CreatedUser(CreateUserDto dto);
-        Task<User?> Login(LoginUserDto dto);
     }
 }
