@@ -1,8 +1,10 @@
 ﻿using HelpDeskApi.Data;
 using HelpDeskApi.DTOs;
 using HelpDeskApi.Model;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.JSInterop.Infrastructure;
 
 namespace HelpDeskApi.Service
 {
@@ -21,9 +23,11 @@ namespace HelpDeskApi.Service
             {
                 Name = dto.Name,
                 Email = dto.Email,
-                Password = dto.Password,
                 DepartmentId = dto.DepartmentId
             };
+
+            var passwordHasher = new PasswordHasher<User>();
+            user.PasswordHash = passwordHasher.HashPassword(user, dto.Password);
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
