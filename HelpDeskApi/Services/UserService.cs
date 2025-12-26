@@ -44,5 +44,21 @@ namespace HelpDeskApi.Service
             var user = await _context.Users.FindAsync(id);
             return user;
         }
+
+        public async Task<User?> Login(LoginUserDto dto)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+
+            if (user == null) 
+                return null;
+
+            var passwordHasher = new PasswordHasher<User>();
+            var result = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
+
+            if (result == PasswordVerificationResult.Failed)
+                return null;
+
+            return user;
+        }
     }
 }

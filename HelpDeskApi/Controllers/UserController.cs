@@ -38,12 +38,32 @@ namespace HelpDeskApi.Controllers
         public async Task<IActionResult> CreatedUser([FromBody] CreateUserDto dto)
         {
             if (!EmailValido(dto.Email))
-                return BadRequest(new { message = "Email invalido." });
+                return Unauthorized(new { message = "Email invalido."});
 
             var user = await _service.CreatedUser(dto);
 
             return CreatedAtAction(nameof(GetId), new { id = user.Id }, user);
 
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginUserDto dto)
+        {
+            if(!EmailValido(dto.Email))
+                return Unauthorized(new { message = "Email invalido." });
+
+            var user = await _service.Login(dto);
+
+            if(user == null)
+                return Unauthorized(new { message = "Email ou senha inválidos" });
+
+
+            return Ok(new
+            {
+                user.Id,
+                user.Name,
+                user.Email,
+            });
         }
 
         private bool EmailValido(string email)
