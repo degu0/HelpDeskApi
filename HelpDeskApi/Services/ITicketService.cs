@@ -9,6 +9,6 @@ namespace HelpDeskApi.Services
 
         Task<Ticket> GetById(int id);
 
-        Task<Ticket> CreatTicket(CreateTicketDto dto);
+        Task<Ticket> CreatTicket(CreateTicketDto dto, int id);
     }
 }

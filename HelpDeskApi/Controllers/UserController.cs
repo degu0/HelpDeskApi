@@ -49,7 +49,7 @@ namespace HelpDeskApi.Controllers
             int id;
             string userId = currentUser.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (int.TryParse(userId, out id))
+            if (!int.TryParse(userId, out id))
                 return Unauthorized();
 
             var user = await _service.GetId(id);

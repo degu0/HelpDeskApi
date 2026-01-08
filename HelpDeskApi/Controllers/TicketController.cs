@@ -2,7 +2,9 @@
 using HelpDeskApi.Model;
 using HelpDeskApi.Models;
 using HelpDeskApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace HelpDeskApi.Controllers
 {
@@ -33,10 +35,19 @@ namespace HelpDeskApi.Controllers
             return Ok(ticket);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateTicket([FromBody] CreateTicketDto dto)
         {
-            var ticket = await _service.CreatTicket(dto);
+            ClaimsPrincipal currentUser = this.User;
+
+            int id;
+            string userId = currentUser.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(userId, out id))
+                return Unauthorized();
+
+            var ticket = await _service.CreatTicket(dto,id);
             return CreatedAtAction(nameof(GetById), new { id = ticket.Id }, ticket);
         }
     }

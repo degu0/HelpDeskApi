@@ -12,14 +12,14 @@ namespace HelpDeskApi.Services
         {
             _context = context;
         }
-        public async Task<Ticket> CreatTicket(CreateTicketDto dto)
+        public async Task<Ticket> CreatTicket(CreateTicketDto dto, int id)
         {
             var ticket = new Ticket
             {
                 Title = dto.Title,
                 Description = dto.Description,
                 DepartmentId = dto.DepartmentId,
-                CreatedById = dto.CreatedById
+                CreatedById = id
             };
 
             _context.Tickets.Add(ticket);
