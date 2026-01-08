@@ -45,12 +45,13 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(key)
     };
+
+    options.TokenValidationParameters.NameClaimType = "sub";
 });
 
 builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
-
 
 
 // Configure the HTTP request pipeline.

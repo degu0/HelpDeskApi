@@ -4,6 +4,7 @@ using HelpDeskApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Mail;
+using System.Security.Claims;
 
 namespace HelpDeskApi.Controllers
 {
@@ -32,6 +33,24 @@ namespace HelpDeskApi.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetId(int id)
         {
+            var user = await _service.GetId(id);
+            if (user == null)
+                return NotFound(new { mensagem = "Usuario não encontrado." });
+
+            return Ok(user);
+        }
+
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<IActionResult> GetUser()
+        {
+            ClaimsPrincipal currentUser = this.User;
+
+            int id;
+            string userId = currentUser.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            int.TryParse(userId, out id);
+
             var user = await _service.GetId(id);
             if (user == null)
                 return NotFound(new { mensagem = "Usuario não encontrado." });
