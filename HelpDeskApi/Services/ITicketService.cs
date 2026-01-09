@@ -13,6 +13,8 @@ namespace HelpDeskApi.Services
 
         Task<List<ResponseTicketDto>> GetByDepartment(int departmentId);
 
-        Task<bool> AssignTicket(int ticketId, int assignedAgentId);
+        Task<string> AssignTicket(int ticketId, int agentId);
+
+        Task<int> GetDepartmentIdByTicket(int ticketId);
     }
 }

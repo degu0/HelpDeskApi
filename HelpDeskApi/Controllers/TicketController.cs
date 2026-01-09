@@ -5,6 +5,7 @@ using HelpDeskApi.Service;
 using HelpDeskApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
 namespace HelpDeskApi.Controllers
@@ -84,16 +85,27 @@ namespace HelpDeskApi.Controllers
         {
             ClaimsPrincipal currentUser = this.User;
 
-            int assignId;
+            int agentId;
             string? userId = currentUser.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (userId is null)
                 return Unauthorized();
 
-            if (!int.TryParse(userId, out assignId))
+            if (!int.TryParse(userId, out agentId))
                 return Unauthorized();
 
-            return Ok(await _service.AssignTicket(ticketId, assignId));
+            var userDepartmentId = await _userService.GetDepartmentByUser(agentId);
+            var ticketDepartmentId = await _service.GetDepartmentIdByTicket(ticketId);
+
+            if (userDepartmentId != ticketDepartmentId)
+                return Unauthorized(new { mensagem = "O departamneto do usuario não é o mesmo do chamado." });
+
+            var result = await _service.AssignTicket(ticketId, agentId);
+
+            if (result != "Chamado foi atribuido com sucesso")
+                return BadRequest(new { message = result });
+
+            return Ok(new { message = result });
         }
     }
 }

@@ -14,19 +14,22 @@ namespace HelpDeskApi.Services
             _context = context;
         }
 
-        public async Task<bool> AssignTicket(int ticketId, int assignedAgentId)
+        public async Task<string> AssignTicket(int ticketId, int agentId)
         {
             var ticket = await _context.Tickets.FindAsync(ticketId);
 
             if (ticket == null)
-                return false;
+                return "Chamado não encontrado.";
 
-            ticket.Status = TicketStatusEnum.;
-            ticket.AssignedAgentId = assignedAgentId;
+            if (ticket.AssignedAgentId is not null)
+                return "Chamado ja foi atribuido.";
+
+            ticket.Status = TicketStatusEnum.Seen;
+            ticket.AssignedAgentId = agentId;
             ticket.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
-            return true;
+            return "Chamado foi atribuido com sucesso.";
         }
 
         public async Task<Ticket> CreatTicket(CreateTicketDto dto, int id)
@@ -100,6 +103,16 @@ namespace HelpDeskApi.Services
                 .FirstOrDefaultAsync();
 
             return ticket == null ? throw new Exception() : ticket;
+        }
+
+        public async Task<int> GetDepartmentIdByTicket(int ticketId)
+        {
+            var ticket = await _context.Tickets.FindAsync(ticketId);
+
+            if (ticket is null)
+                return 0;
+
+            return ticket.DepartmentId;
         }
     }
 }
