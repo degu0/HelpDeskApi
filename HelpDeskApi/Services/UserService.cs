@@ -66,5 +66,10 @@ namespace HelpDeskApi.Service
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<User> GetDepartmentByUser(int id)
+        {
+            return await _context.Users.FindAsync(id);
+        }
+
     }
 }

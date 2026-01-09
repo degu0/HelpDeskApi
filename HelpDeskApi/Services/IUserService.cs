@@ -9,6 +9,8 @@ namespace HelpDeskApi.Service
     {
         Task<List<ResponseUserDto>> GetAll();
         Task<ResponseUserDto?> GetId(int id);
+
+        Task<User> GetDepartmentByUser(int id);
         Task<User> CreatedUser(CreateUserDto dto);
     }
 }

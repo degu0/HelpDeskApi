@@ -10,5 +10,7 @@ namespace HelpDeskApi.Services
         Task<ResponseTicketDto> GetById(int id);
 
         Task<Ticket> CreatTicket(CreateTicketDto dto, int id);
+
+        Task<List<ResponseTicketDto>> GetByDepartment(int departmentId);
     }
 }
