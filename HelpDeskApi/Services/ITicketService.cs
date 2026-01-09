@@ -5,9 +5,9 @@ namespace HelpDeskApi.Services
 {
     public interface ITicketService
     {
-        Task<List<Ticket>> GetAll();
+        Task<List<ResponseTicketDto>> GetAll();
 
-        Task<Ticket> GetById(int id);
+        Task<ResponseTicketDto> GetById(int id);
 
         Task<Ticket> CreatTicket(CreateTicketDto dto, int id);
     }

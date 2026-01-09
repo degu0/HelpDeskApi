@@ -10,6 +10,6 @@ namespace HelpDeskApi.DTOs
         public string Email { get; set; } = null!;
 
         public string Department { get; set; } = null!;
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; }
     }
 }

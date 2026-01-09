@@ -27,15 +27,41 @@ namespace HelpDeskApi.Services
             return ticket;
         }
 
-        public async Task<List<Ticket>> GetAll()
+        public async Task<List<ResponseTicketDto>> GetAll()
         {
-            return await _context.Tickets.ToListAsync();
+            return await _context.Tickets.
+                Select(ticket => new ResponseTicketDto
+                {
+                    Id = ticket.Id,
+                    Title = ticket.Title,
+                    Description = ticket.Description,
+                    Status = ticket.Status.ToString(),
+                    Department = ticket.Department.Name,
+                    CreatedBy = ticket.CreatedBy.Name,
+                    AssignedAgent = ticket.AssignedAgent != null ? ticket.AssignedAgent.Name : null,
+                    CreatedAt = ticket.CreatedAt,
+                    UpdatedAt = ticket.UpdatedAt,
+                })
+                .ToListAsync();
         }
 
-        public async Task<Ticket> GetById(int id)
+        public async Task<ResponseTicketDto> GetById(int id)
         {
-            var ticket = await _context.Tickets.FindAsync(id);
-            return ticket;
+            return await _context.Tickets.
+                Where(ticket => ticket.Id == id).
+                Select(ticket => new ResponseTicketDto
+                {
+                    Id = ticket.Id,
+                    Title = ticket.Title,
+                    Description = ticket.Description,
+                    Status = ticket.Status.ToString(),
+                    Department = ticket.Department.Name,
+                    CreatedBy = ticket.CreatedBy.Name,
+                    AssignedAgent = ticket.AssignedAgent != null ? ticket.AssignedAgent.Name : null,
+                    CreatedAt = ticket.CreatedAt,
+                    UpdatedAt = ticket.UpdatedAt,
+                })
+                .FirstOrDefaultAsync();
         }
     }
 }
