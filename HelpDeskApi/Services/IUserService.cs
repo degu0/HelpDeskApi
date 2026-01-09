@@ -8,7 +8,7 @@ namespace HelpDeskApi.Service
     public interface IUserService
     {
         Task<List<ResponseUserDto>> GetAll();
-        Task<ResponseUserDto> GetId(int id);
+        Task<ResponseUserDto?> GetId(int id);
         Task<User> CreatedUser(CreateUserDto dto);
     }
 }

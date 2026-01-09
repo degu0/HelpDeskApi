@@ -27,7 +27,8 @@ namespace HelpDeskApi.Service
         public async Task<Department> GetById(int id)
         {
             var department = await _context.Departments.FindAsync(id);
-            return department;
+
+            return department == null ? throw new Exception() : department;
         }
     }
 }

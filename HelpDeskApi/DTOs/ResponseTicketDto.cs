@@ -7,7 +7,7 @@ namespace HelpDeskApi.DTOs
         public int Id { get; set; }
         public string Title { get; set; } = null!;
         public string Description { get; set; } = null!;
-        public string Status { get; set; }
+        public string Status { get; set; } = null!;
         public string Department { get; set; } = null!;
         public string CreatedBy { get; set; } = null!;
         public string? AssignedAgent { get; set; }

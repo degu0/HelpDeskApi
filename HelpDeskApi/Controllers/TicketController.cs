@@ -42,7 +42,10 @@ namespace HelpDeskApi.Controllers
             ClaimsPrincipal currentUser = this.User;
 
             int id;
-            string userId = currentUser.FindFirstValue(ClaimTypes.NameIdentifier);
+            string? userId = currentUser.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId is null)
+                return Unauthorized();
 
             if (!int.TryParse(userId, out id))
                 return Unauthorized();

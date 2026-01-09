@@ -47,7 +47,7 @@ namespace HelpDeskApi.Services
 
         public async Task<ResponseTicketDto> GetById(int id)
         {
-            return await _context.Tickets.
+            var ticket = await _context.Tickets.
                 Where(ticket => ticket.Id == id).
                 Select(ticket => new ResponseTicketDto
                 {
@@ -62,6 +62,8 @@ namespace HelpDeskApi.Services
                     UpdatedAt = ticket.UpdatedAt,
                 })
                 .FirstOrDefaultAsync();
+
+            return ticket == null ? throw new Exception() : ticket;
         }
     }
 }
