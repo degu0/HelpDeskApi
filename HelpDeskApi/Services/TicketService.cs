@@ -1,4 +1,5 @@
 ﻿using HelpDeskApi.Data;
+using HelpDeskApi.Domain.Enum;
 using HelpDeskApi.DTOs;
 using HelpDeskApi.Models;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,22 @@ namespace HelpDeskApi.Services
         {
             _context = context;
         }
+
+        public async Task<bool> AssignTicket(int ticketId, int assignedAgentId)
+        {
+            var ticket = await _context.Tickets.FindAsync(ticketId);
+
+            if (ticket == null)
+                return false;
+
+            ticket.Status = TicketStatusEnum.;
+            ticket.AssignedAgentId = assignedAgentId;
+            ticket.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<Ticket> CreatTicket(CreateTicketDto dto, int id)
         {
             var ticket = new Ticket

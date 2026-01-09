@@ -73,9 +73,27 @@ namespace HelpDeskApi.Controllers
             if (!int.TryParse(userId, out id))
                 return Unauthorized();
 
-            var department = await _userService.GetDepartmentByUser(id);
+            var departmentId = await _userService.GetDepartmentByUser(id);
 
-            return Ok(await _service.GetByDepartment(department.DepartmentId));
+            return Ok(await _service.GetByDepartment(departmentId));
+        }
+
+        [Authorize]
+        [HttpPatch("assign/{ticketId}")]
+        public async Task<IActionResult> AssignTicket(int ticketId)
+        {
+            ClaimsPrincipal currentUser = this.User;
+
+            int assignId;
+            string? userId = currentUser.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId is null)
+                return Unauthorized();
+
+            if (!int.TryParse(userId, out assignId))
+                return Unauthorized();
+
+            return Ok(await _service.AssignTicket(ticketId, assignId));
         }
     }
 }
