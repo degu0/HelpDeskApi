@@ -44,15 +44,9 @@ namespace HelpDeskApi.Controllers
         [HttpGet("me")]
         public async Task<IActionResult> GetUser()
         {
-            ClaimsPrincipal currentUser = this.User;
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            int id;
-            string? userId = currentUser.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (userId is null)
-                return Unauthorized();
-
-            if (!int.TryParse(userId, out id))
+            if (!int.TryParse(userId, out var id))
                 return Unauthorized();
 
             var user = await _service.GetId(id);

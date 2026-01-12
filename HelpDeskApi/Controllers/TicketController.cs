@@ -46,15 +46,9 @@ namespace HelpDeskApi.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateTicket([FromBody] CreateTicketDto dto)
         {
-            ClaimsPrincipal currentUser = this.User;
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            int id;
-            string? userId = currentUser.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (userId is null)
-                return Unauthorized();
-
-            if (!int.TryParse(userId, out id))
+            if (!int.TryParse(userId, out var id))
                 return Unauthorized();
 
             var ticket = await _service.CreatTicket(dto,id);
@@ -65,15 +59,9 @@ namespace HelpDeskApi.Controllers
         [HttpGet("department")]
         public async Task<IActionResult> GetByDepartment()
         {
-            ClaimsPrincipal currentUser = this.User;
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            int id;
-            string? userId = currentUser.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (userId is null)
-                return Unauthorized();
-
-            if (!int.TryParse(userId, out id))
+            if (!int.TryParse(userId, out var id))
                 return Unauthorized();
 
             var departmentId = await _userService.GetDepartmentByUser(id);
@@ -85,15 +73,9 @@ namespace HelpDeskApi.Controllers
         [HttpPatch("assign/{ticketId}")]
         public async Task<IActionResult> AssignTicket(int ticketId)
         {
-            ClaimsPrincipal currentUser = this.User;
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            int agentId;
-            string? userId = currentUser.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (userId is null)
-                return Unauthorized();
-
-            if (!int.TryParse(userId, out agentId))
+            if (!int.TryParse(userId, out var agentId))
                 return Unauthorized();
 
             var userDepartmentId = await _userService.GetDepartmentByUser(agentId);
@@ -114,15 +96,9 @@ namespace HelpDeskApi.Controllers
         [HttpGet("user/created")]
         public async Task<IActionResult> GetTicketCreatedByUser()
         {
-            ClaimsPrincipal currentUser = this.User;
+            string? id = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            int userId;
-            string? id = currentUser.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if(id is null)
-                return Unauthorized();
-
-            if (!int.TryParse(id, out userId))
+            if (!int.TryParse(id, out var userId))
                 return Unauthorized();
 
             var tickets = await _service.GetTicketCreatedByUser(userId);
@@ -137,15 +113,9 @@ namespace HelpDeskApi.Controllers
         [HttpGet("user/assign")]
         public async Task<IActionResult> GetTicketAssignByUser()
         {
-            ClaimsPrincipal currentUser = this.User;
+            string? id = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            int agentId;
-            string? id = currentUser.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (id is null)
-                return Unauthorized();
-
-            if (!int.TryParse(id, out agentId))
+            if (!int.TryParse(id, out var agentId))
                 return Unauthorized();
 
             var tickets = await _service.GetTicketAssignedByUser(agentId);
