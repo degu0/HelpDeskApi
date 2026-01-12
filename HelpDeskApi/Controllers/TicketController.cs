@@ -171,5 +171,30 @@ namespace HelpDeskApi.Controllers
 
             return Ok(tickets);
         }
+
+        [Authorize]
+        [HttpPatch("{ticketId}/status")]
+        public async Task<IActionResult> PatchStatus([FromQuery] TicketStatusEnum status, int ticketId)
+        {
+            if(status != TicketStatusEnum.In_Progress && status != TicketStatusEnum.Resolved)
+                return BadRequest(new {mensagem = "Status inválido." });
+
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(userIdClaim, out var userId))
+                return Unauthorized();
+
+            var isValidTicket = await _service.GetConfirmationTicketByUser(userId, ticketId, "agent");
+
+            if (!isValidTicket)
+                return NotFound(new { mensagem = "Chamado não pertence ao usuario" });
+
+            var updated = await _service.PatchStatus(status, ticketId);
+
+            if(!updated)
+                return BadRequest(new { mensagem = "Não foi possível alterar o status." });
+
+            return Ok(new { mensagem = "Status alterado com sucesso." });
+        }
     }
 }

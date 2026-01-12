@@ -3,7 +3,9 @@ using HelpDeskApi.Domain.Enum;
 using HelpDeskApi.DTOs;
 using HelpDeskApi.Model;
 using HelpDeskApi.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace HelpDeskApi.Services
 {
@@ -106,6 +108,30 @@ namespace HelpDeskApi.Services
             return ticket == null ? throw new Exception() : ticket;
         }
 
+        public async Task<bool> GetConfirmationTicketByUser(
+            int userId,
+            int ticketId,
+            string searchFor
+        )
+        {
+            var query = _context.Tickets
+                .Where(t => t.Id == ticketId)
+                .Where(t => t.Status != TicketStatusEnum.Resolved &&
+                            t.Status != TicketStatusEnum.Closed);
+
+            if (searchFor == "creat")
+            {
+                query = query.Where(t => t.CreatedById == userId);
+            }
+            else
+            {
+                query = query.Where(t => t.AssignedAgentId == userId);
+            }
+
+            return await query.AnyAsync();
+        }
+
+
         public async Task<int> GetDepartmentIdByTicket(int ticketId)
         {
             var ticket = await _context.Tickets.FindAsync(ticketId);
@@ -175,5 +201,20 @@ namespace HelpDeskApi.Services
                 }).
                 ToListAsync();
         }
+
+        public async Task<bool> PatchStatus(TicketStatusEnum status, int ticketId)
+        {
+            var ticket = await _context.Tickets.FindAsync(ticketId);
+
+            if (ticket is null)
+                return false;
+
+            ticket.Status = status;
+            ticket.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
     }
 }
