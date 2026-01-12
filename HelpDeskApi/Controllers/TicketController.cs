@@ -123,7 +123,12 @@ namespace HelpDeskApi.Controllers
             if (!int.TryParse(id, out userId))
                 return Unauthorized();
 
-            return Ok(await _service.GetTicketCreatedByUser(userId));
+            var tickets = await _service.GetTicketCreatedByUser(userId);
+
+            if (tickets is null)
+                return Ok(new { mensagem = "A sua caixa de chamados esta vazio." });
+
+            return Ok(tickets);
         }
     }
 }

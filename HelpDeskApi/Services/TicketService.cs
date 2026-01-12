@@ -120,6 +120,7 @@ namespace HelpDeskApi.Services
         {
             return await _context.Tickets.
                 Where(ticket => ticket.CreatedById == createdById).
+                Where(ticket => ticket.Status != TicketStatusEnum.Resolved && ticket.Status != TicketStatusEnum.Closed).
                 Select(ticket => new ResponseTicketDto
                 {
                     Id = ticket.Id,
