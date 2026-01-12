@@ -1,4 +1,5 @@
-﻿using HelpDeskApi.DTOs;
+﻿using HelpDeskApi.Domain.Enum;
+using HelpDeskApi.DTOs;
 using HelpDeskApi.Model;
 using HelpDeskApi.Models;
 using HelpDeskApi.Service;
@@ -150,6 +151,23 @@ namespace HelpDeskApi.Controllers
 
             if(tickets is null)
                 return Ok(new {mensagem = "A sua caixa de camados esta vazia."});
+
+            return Ok(tickets);
+        }
+
+        [Authorize]
+        [HttpGet("status/{status}")]
+        public async Task<IActionResult> GetTicketByStatus(TicketStatusEnum status)
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(userIdClaim, out var userId))
+                return Unauthorized();
+
+            var tickets = await _service.GetTicketByStatus(status, userId);
+
+            if (tickets is null)
+                return Ok(new { mensagem = "A sua caixa de camados esta vazia." });
 
             return Ok(tickets);
         }

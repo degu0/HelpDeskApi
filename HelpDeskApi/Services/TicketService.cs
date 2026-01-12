@@ -136,6 +136,26 @@ namespace HelpDeskApi.Services
                 ToListAsync();
         }
 
+        public async Task<List<ResponseTicketDto>> GetTicketByStatus(TicketStatusEnum status, int userId)
+        {
+            return await _context.Tickets.
+                Where(ticket => ticket.CreatedById == userId).
+                Where(ticket => ticket.Status == status).
+                Select(ticket => new ResponseTicketDto
+                {
+                    Id = ticket.Id,
+                    Title = ticket.Title,
+                    Description = ticket.Description,
+                    Status = ticket.Status.ToString(),
+                    Department = ticket.Department.Name,
+                    CreatedBy = ticket.CreatedBy.Name,
+                    AssignedAgent = ticket.AssignedAgent != null ? ticket.AssignedAgent.Name : null,
+                    CreatedAt = ticket.CreatedAt,
+                    UpdatedAt = ticket.UpdatedAt,
+                }).
+                ToListAsync();
+        }
+
         public async Task<List<ResponseTicketDto>> GetTicketCreatedByUser(int createdById)
         {
             return await _context.Tickets.

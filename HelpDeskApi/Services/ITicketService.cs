@@ -1,4 +1,5 @@
-﻿using HelpDeskApi.DTOs;
+﻿using HelpDeskApi.Domain.Enum;
+using HelpDeskApi.DTOs;
 using HelpDeskApi.Models;
 
 namespace HelpDeskApi.Services
@@ -20,5 +21,7 @@ namespace HelpDeskApi.Services
         Task<List<ResponseTicketDto>> GetTicketCreatedByUser(int createdById);
 
         Task<List<ResponseTicketDto>> GetTicketAssignedByUser(int agentId);
+
+        Task<List<ResponseTicketDto>> GetTicketByStatus(TicketStatusEnum status, int userId);
     }
 }
