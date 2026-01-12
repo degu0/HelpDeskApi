@@ -1,6 +1,7 @@
 ﻿using HelpDeskApi.Data;
 using HelpDeskApi.Domain.Enum;
 using HelpDeskApi.DTOs;
+using HelpDeskApi.Model;
 using HelpDeskApi.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -113,6 +114,25 @@ namespace HelpDeskApi.Services
                 return 0;
 
             return ticket.DepartmentId;
+        }
+
+        public async Task<List<ResponseTicketDto>> GetTicketCreatedByUser(int createdById)
+        {
+            return await _context.Tickets.
+                Where(ticket => ticket.CreatedById == createdById).
+                Select(ticket => new ResponseTicketDto
+                {
+                    Id = ticket.Id,
+                    Title = ticket.Title,
+                    Description = ticket.Description,
+                    Status = ticket.Status.ToString(),
+                    Department = ticket.Department.Name,
+                    CreatedBy = ticket.CreatedBy.Name,
+                    AssignedAgent = ticket.AssignedAgent != null ? ticket.AssignedAgent.Name : null,
+                    CreatedAt = ticket.CreatedAt,
+                    UpdatedAt = ticket.UpdatedAt,
+                }).
+                ToListAsync();
         }
     }
 }

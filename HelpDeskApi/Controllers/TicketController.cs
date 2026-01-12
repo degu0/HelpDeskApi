@@ -107,5 +107,23 @@ namespace HelpDeskApi.Controllers
 
             return Ok(new { message = result });
         }
+
+        [Authorize]
+        [HttpGet("user")]
+        public async Task<IActionResult> GetTicketByUser()
+        {
+            ClaimsPrincipal curentUser = this.User;
+
+            int userId;
+            string? id = curentUser.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if(id is null)
+                return Unauthorized();
+
+            if (!int.TryParse(id, out userId))
+                return Unauthorized();
+
+            return Ok(await _service.GetTicketCreatedByUser(userId));
+        }
     }
 }

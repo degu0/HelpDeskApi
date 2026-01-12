@@ -16,5 +16,7 @@ namespace HelpDeskApi.Services
         Task<string> AssignTicket(int ticketId, int agentId);
 
         Task<int> GetDepartmentIdByTicket(int ticketId);
+
+        Task<List<ResponseTicketDto>> GetTicketCreatedByUser(int createdById);
     }
 }
