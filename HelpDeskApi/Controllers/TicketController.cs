@@ -7,6 +7,7 @@ using HelpDeskApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Net.NetworkInformation;
 using System.Security.Claims;
 
 namespace HelpDeskApi.Controllers
@@ -192,6 +193,28 @@ namespace HelpDeskApi.Controllers
             var updated = await _service.PatchStatus(status, ticketId);
 
             if(!updated)
+                return BadRequest(new { mensagem = "Não foi possível alterar o status." });
+
+            return Ok(new { mensagem = "Status alterado com sucesso." });
+        }
+
+        [Authorize]
+        [HttpPatch("{ticketId}/closed")]
+        public async Task<IActionResult> ClosedTicket(int ticketId)
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(userIdClaim, out var userId))
+                return Unauthorized();
+
+            var isValidTicket = await _service.GetConfirmationTicketByUser(userId, ticketId, "creat");
+
+            if (!isValidTicket)
+                return NotFound(new { mensagem = "Chamado não pertence ao usuario" });
+
+            var updated = await _service.PatchStatus(TicketStatusEnum.Closed, ticketId);
+
+            if (!updated)
                 return BadRequest(new { mensagem = "Não foi possível alterar o status." });
 
             return Ok(new { mensagem = "Status alterado com sucesso." });
