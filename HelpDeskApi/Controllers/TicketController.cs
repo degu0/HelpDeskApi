@@ -109,13 +109,13 @@ namespace HelpDeskApi.Controllers
         }
 
         [Authorize]
-        [HttpGet("user")]
-        public async Task<IActionResult> GetTicketByUser()
+        [HttpGet("user/created")]
+        public async Task<IActionResult> GetTicketCreatedByUser()
         {
-            ClaimsPrincipal curentUser = this.User;
+            ClaimsPrincipal currentUser = this.User;
 
             int userId;
-            string? id = curentUser.FindFirstValue(ClaimTypes.NameIdentifier);
+            string? id = currentUser.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if(id is null)
                 return Unauthorized();
@@ -127,6 +127,29 @@ namespace HelpDeskApi.Controllers
 
             if (tickets is null)
                 return Ok(new { mensagem = "A sua caixa de chamados esta vazio." });
+
+            return Ok(tickets);
+        }
+
+        [Authorize]
+        [HttpGet("user/assign")]
+        public async Task<IActionResult> GetTicketAssignByUser()
+        {
+            ClaimsPrincipal currentUser = this.User;
+
+            int agentId;
+            string? id = currentUser.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (id is null)
+                return Unauthorized();
+
+            if (!int.TryParse(id, out agentId))
+                return Unauthorized();
+
+            var tickets = await _service.GetTicketAssignedByUser(agentId);
+
+            if(tickets is null)
+                return Ok(new {mensagem = "A sua caixa de camados esta vazia."});
 
             return Ok(tickets);
         }
