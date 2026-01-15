@@ -107,6 +107,13 @@ namespace HelpDeskApi.Services
 
             return ticket == null ? throw new Exception() : ticket;
         }
+        public async Task<bool> GetConfirmationTicketByStatus(int userId, int ticketId, TicketStatusEnum status)
+        {
+            return await _context.Tickets.AnyAsync(t =>
+                t.Id == ticketId &&
+                t.Status == status
+            );
+        }
 
         public async Task<bool> GetConfirmationTicketByUser(
             int userId,

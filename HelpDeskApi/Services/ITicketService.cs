@@ -27,5 +27,7 @@ namespace HelpDeskApi.Services
         Task<bool> PatchStatus(TicketStatusEnum status, int ticketId);
 
         Task<bool> GetConfirmationTicketByUser(int userId, int ticketId, string searchFor);
+
+        Task<bool> GetConfirmationTicketByStatus(int userId, int ticketId, TicketStatusEnum status);
     }
 }

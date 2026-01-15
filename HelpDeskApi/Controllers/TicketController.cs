@@ -187,7 +187,34 @@ namespace HelpDeskApi.Controllers
             if (!updated)
                 return BadRequest(new { mensagem = "Não foi possível alterar o status." });
 
-            return Ok(new { mensagem = "Status alterado com sucesso." });
+            return Ok(new { mensagem = "Status fechado com sucesso." });
+        }
+
+        [Authorize]
+        [HttpPatch("{ticketId}/reopen")]
+        public async Task<IActionResult> ReopenTicket(int ticketId)
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(userIdClaim, out var userId))
+                return Unauthorized();
+
+            var isValidTicket = await _service.GetConfirmationTicketByUser(userId, ticketId, "creat");
+
+            if (!isValidTicket)
+                return NotFound(new { mensagem = "Chamado não pertence ao usuario" });
+
+            var isValidStatusTicket = await _service.GetConfirmationTicketByStatus(userId, ticketId, TicketStatusEnum.Closed);
+
+            if (!isValidStatusTicket)
+                return NotFound(new { mensagem = "Chamado não esta fechado!" });
+
+            var updated = await _service.PatchStatus(TicketStatusEnum.In_Progress, ticketId);
+
+            if (!updated)
+                return BadRequest(new { mensagem = "Não foi possível alterar o status." });
+
+            return Ok(new { mensagem = "Status reaberto com sucesso." });
         }
     }
 }
