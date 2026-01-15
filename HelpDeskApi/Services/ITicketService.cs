@@ -24,6 +24,8 @@ namespace HelpDeskApi.Services
 
         Task<List<ResponseTicketDto>> GetTicketByStatus(TicketStatusEnum status, int userId);
 
+        Task<TicketGroupedDto> GetTicketByUser(int userId, int departmentId);
+
         Task<bool> PatchStatus(TicketStatusEnum status, int ticketId);
 
         Task<bool> GetConfirmationTicketByUser(int userId, int ticketId, string searchFor);

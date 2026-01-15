@@ -120,10 +120,7 @@ namespace HelpDeskApi.Services
         )
         {
             var query = _context.Tickets
-                .Where(t => t.Id == ticketId)
-                .Where(t => t.Status != TicketStatusEnum.Resolved &&
-                            t.Status != TicketStatusEnum.Closed &&
-                            t.Status != TicketStatusEnum.Archive);
+                .Where(t => t.Id == ticketId);
 
             if (searchFor == "creat")
             {
@@ -188,6 +185,74 @@ namespace HelpDeskApi.Services
                     UpdatedAt = ticket.UpdatedAt,
                 }).
                 ToListAsync();
+        }
+
+        public async Task<TicketGroupedDto> GetTicketByUser(int userId, int departmentId)
+        {
+            var assignedToMe = await _context.Tickets
+                                        .Where(ticket => ticket.AssignedAgentId == userId)
+                                        .Where(ticket => ticket.Status != TicketStatusEnum.Resolved &&
+                                               ticket.Status != TicketStatusEnum.Closed &&
+                                               ticket.Status != TicketStatusEnum.Archive)
+                                        .Select(ticket => new ResponseTicketDto
+                                        {
+                                            Id = ticket.Id,
+                                            Title = ticket.Title,
+                                            Description = ticket.Description,
+                                            Status = ticket.Status.ToString(),
+                                            Department = ticket.Department.Name,
+                                            CreatedBy = ticket.CreatedBy.Name,
+                                            AssignedAgent = ticket.AssignedAgent != null ? ticket.AssignedAgent.Name : null,
+                                            CreatedAt = ticket.CreatedAt,
+                                            UpdatedAt = ticket.UpdatedAt,
+                                        })
+                                        .ToListAsync();
+
+            var createdByMe = await _context.Tickets
+                            .Where(ticket => ticket.CreatedById == userId)
+                            .Where(ticket => ticket.Status != TicketStatusEnum.Resolved &&
+                                               ticket.Status != TicketStatusEnum.Closed &&
+                                               ticket.Status != TicketStatusEnum.Archive)
+                            .Select(ticket => new ResponseTicketDto
+                            {
+                                Id = ticket.Id,
+                                Title = ticket.Title,
+                                Description = ticket.Description,
+                                Status = ticket.Status.ToString(),
+                                Department = ticket.Department.Name,
+                                CreatedBy = ticket.CreatedBy.Name,
+                                AssignedAgent = ticket.AssignedAgent != null ? ticket.AssignedAgent.Name : null,
+                                CreatedAt = ticket.CreatedAt,
+                                UpdatedAt = ticket.UpdatedAt,
+                            })
+                            .ToListAsync();
+
+            var fromToMyDepartment = await _context.Tickets
+                                        .Where(ticket => ticket.DepartmentId == departmentId)
+                                        .Where(ticket => ticket.Status != TicketStatusEnum.Resolved &&
+                                               ticket.Status != TicketStatusEnum.Closed &&
+                                               ticket.Status != TicketStatusEnum.Archive)
+                                        .Select(ticket => new ResponseTicketDto
+                                        {
+                                            Id = ticket.Id,
+                                            Title = ticket.Title,
+                                            Description = ticket.Description,
+                                            Status = ticket.Status.ToString(),
+                                            Department = ticket.Department.Name,
+                                            CreatedBy = ticket.CreatedBy.Name,
+                                            AssignedAgent = ticket.AssignedAgent != null ? ticket.AssignedAgent.Name : null,
+                                            CreatedAt = ticket.CreatedAt,
+                                            UpdatedAt = ticket.UpdatedAt,
+                                        })
+                                        .ToListAsync();
+
+            return new TicketGroupedDto
+            {
+                AssignedToMe = assignedToMe,
+                CreatedByMe = createdByMe,
+                FromToMyDepartment = fromToMyDepartment
+            };
+
         }
 
         public async Task<List<ResponseTicketDto>> GetTicketCreatedByUser(int createdById)

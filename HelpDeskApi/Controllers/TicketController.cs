@@ -261,7 +261,20 @@ namespace HelpDeskApi.Controllers
                 return BadRequest(new { message = result });
 
             return Ok(new { message = result });
+        }
 
+        [Authorize]
+        [HttpGet("user")]
+        public async Task<IActionResult> GetAllTicketByUser()
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(userIdClaim, out var userId))
+                return Unauthorized();
+
+            var departmentId = await _userService.GetDepartmentByUser(userId);
+
+            return Ok(await _service.GetTicketByUser(userId, departmentId));
         }
     }
 }
