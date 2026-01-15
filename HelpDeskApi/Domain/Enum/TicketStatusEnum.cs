@@ -6,6 +6,7 @@
         Seen,
         In_Progress,
         Resolved,
-        Closed
+        Closed, 
+        Archive
     }
 }

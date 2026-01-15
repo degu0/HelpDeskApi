@@ -1,11 +1,9 @@
 ﻿using HelpDeskApi.Data;
 using HelpDeskApi.Domain.Enum;
 using HelpDeskApi.DTOs;
-using HelpDeskApi.Model;
 using HelpDeskApi.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+
 
 namespace HelpDeskApi.Services
 {
@@ -124,7 +122,8 @@ namespace HelpDeskApi.Services
             var query = _context.Tickets
                 .Where(t => t.Id == ticketId)
                 .Where(t => t.Status != TicketStatusEnum.Resolved &&
-                            t.Status != TicketStatusEnum.Closed);
+                            t.Status != TicketStatusEnum.Closed &&
+                            t.Status != TicketStatusEnum.Archive);
 
             if (searchFor == "creat")
             {
@@ -153,7 +152,7 @@ namespace HelpDeskApi.Services
         {
             return await _context.Tickets.
                 Where(ticket => ticket.AssignedAgentId == agentId).
-                Where(ticket => ticket.Status != TicketStatusEnum.Resolved && ticket.Status != TicketStatusEnum.Closed).
+                Where(ticket => ticket.Status != TicketStatusEnum.Resolved && ticket.Status != TicketStatusEnum.Closed && ticket.Status != TicketStatusEnum.Archive).
                 Select(ticket => new ResponseTicketDto
                 {
                     Id = ticket.Id,
@@ -193,7 +192,7 @@ namespace HelpDeskApi.Services
         {
             return await _context.Tickets.
                 Where(ticket => ticket.CreatedById == createdById).
-                Where(ticket => ticket.Status != TicketStatusEnum.Resolved && ticket.Status != TicketStatusEnum.Closed).
+                Where(ticket => ticket.Status != TicketStatusEnum.Resolved && ticket.Status != TicketStatusEnum.Closed && ticket.Status != TicketStatusEnum.Archive).
                 Select(ticket => new ResponseTicketDto
                 {
                     Id = ticket.Id,
