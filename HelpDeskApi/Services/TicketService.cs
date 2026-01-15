@@ -152,7 +152,9 @@ namespace HelpDeskApi.Services
         {
             return await _context.Tickets.
                 Where(ticket => ticket.AssignedAgentId == agentId).
-                Where(ticket => ticket.Status != TicketStatusEnum.Resolved && ticket.Status != TicketStatusEnum.Closed && ticket.Status != TicketStatusEnum.Archive).
+                Where(ticket => ticket.Status != TicketStatusEnum.Resolved && 
+                                ticket.Status != TicketStatusEnum.Closed && 
+                                ticket.Status != TicketStatusEnum.Archive).
                 Select(ticket => new ResponseTicketDto
                 {
                     Id = ticket.Id,
@@ -192,7 +194,9 @@ namespace HelpDeskApi.Services
         {
             return await _context.Tickets.
                 Where(ticket => ticket.CreatedById == createdById).
-                Where(ticket => ticket.Status != TicketStatusEnum.Resolved && ticket.Status != TicketStatusEnum.Closed && ticket.Status != TicketStatusEnum.Archive).
+                Where(ticket => ticket.Status != TicketStatusEnum.Resolved && 
+                                ticket.Status != TicketStatusEnum.Closed &&    
+                                ticket.Status != TicketStatusEnum.Archive).
                 Select(ticket => new ResponseTicketDto
                 {
                     Id = ticket.Id,
@@ -222,5 +226,21 @@ namespace HelpDeskApi.Services
             return true;
         }
 
+        public async Task<string> TransferAssingTicket(int ticketId, int newAgentId)
+        {
+            var ticket = await _context.Tickets.FindAsync(ticketId);
+
+            if(ticket == null)
+                return "Chamado não encontrado.";
+
+            if (ticket.AssignedAgentId is null)
+                return "Chamado não foi atribuida ainda.";
+
+            ticket.AssignedAgentId = newAgentId;
+            ticket.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return "Chamado foi transferido com sucesso.";
+        }
     }
 }

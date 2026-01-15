@@ -239,5 +239,29 @@ namespace HelpDeskApi.Controllers
 
             return Ok(new { mensagem = "Status reaberto com sucesso." });
         }
+
+        [Authorize]
+        [HttpPatch("{ticketId}/transfer")]
+        public async Task<IActionResult> TransferTicket(int ticketId)
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(userIdClaim, out var agentId))
+                return Unauthorized();
+
+            var userDepartmentId = await _userService.GetDepartmentByUser(agentId);
+            var ticketDepartmentId = await _service.GetDepartmentIdByTicket(ticketId);
+
+            if (userDepartmentId != ticketDepartmentId)
+                return Unauthorized(new { mensagem = "O departamento do usuario não é o mesmo do chamado." });
+
+            var result = await _service.AssignTicket(ticketId, agentId);
+
+            if (result != "Chamado foi transferido com sucesso.")
+                return BadRequest(new { message = result });
+
+            return Ok(new { message = result });
+
+        }
     }
 }

@@ -29,5 +29,7 @@ namespace HelpDeskApi.Services
         Task<bool> GetConfirmationTicketByUser(int userId, int ticketId, string searchFor);
 
         Task<bool> GetConfirmationTicketByStatus(int userId, int ticketId, TicketStatusEnum status);
+
+        Task<string> TransferAssingTicket(int ticketId, int newAgentId);
     }
 }
