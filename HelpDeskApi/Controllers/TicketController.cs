@@ -26,10 +26,16 @@ namespace HelpDeskApi.Controllers
             _userService = userService;
         }
 
+
+
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetTickets([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            return Ok(await _service.GetAll());
+            if (page <= 0 || pageSize <= 0)
+                return BadRequest();
+
+            var result = await _service.GetTicketPaged(page, pageSize);
+            return Ok(result);
         }
 
         [HttpGet("{id}")]

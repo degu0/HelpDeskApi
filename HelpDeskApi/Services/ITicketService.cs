@@ -6,8 +6,6 @@ namespace HelpDeskApi.Services
 {
     public interface ITicketService
     {
-        Task<List<ResponseTicketDto>> GetAll();
-
         Task<ResponseTicketDto> GetById(int id);
 
         Task<Ticket> CreatTicket(CreateTicketDto dto, int id);
@@ -33,5 +31,7 @@ namespace HelpDeskApi.Services
         Task<bool> GetConfirmationTicketByStatus(int userId, int ticketId, TicketStatusEnum status);
 
         Task<string> TransferAssingTicket(int ticketId, int newAgentId);
+
+        Task<PagedResponse<ResponseTicketPocketDto>> GetTicketPaged(int page, int pageSize);
     }
 }

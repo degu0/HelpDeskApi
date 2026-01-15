@@ -48,24 +48,6 @@ namespace HelpDeskApi.Services
             return ticket;
         }
 
-        public async Task<List<ResponseTicketDto>> GetAll()
-        {
-            return await _context.Tickets.
-                Select(ticket => new ResponseTicketDto
-                {
-                    Id = ticket.Id,
-                    Title = ticket.Title,
-                    Description = ticket.Description,
-                    Status = ticket.Status.ToString(),
-                    Department = ticket.Department.Name,
-                    CreatedBy = ticket.CreatedBy.Name,
-                    AssignedAgent = ticket.AssignedAgent != null ? ticket.AssignedAgent.Name : null,
-                    CreatedAt = ticket.CreatedAt,
-                    UpdatedAt = ticket.UpdatedAt,
-                })
-                .ToListAsync();
-        }
-
         public async Task<List<ResponseTicketDto>> GetByDepartment(int departmentId)
         {
             return await _context.Tickets.
@@ -275,6 +257,36 @@ namespace HelpDeskApi.Services
                     UpdatedAt = ticket.UpdatedAt,
                 }).
                 ToListAsync();
+        }
+
+        public async Task<PagedResponse<ResponseTicketPocketDto>> GetTicketPaged(int page, int pageSize)
+        {
+            var query = _context.Tickets.AsQueryable();
+
+            var totalItems = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(t => t.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(ticket => new ResponseTicketPocketDto
+                {
+                    Id = ticket.Id,
+                    Title = ticket.Title,
+                    Status = ticket.Status.ToString(),
+                    CreatedAt = ticket.CreatedAt
+                })
+                .ToListAsync();
+
+
+            return new PagedResponse<ResponseTicketPocketDto>
+            {
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = totalItems,
+                TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize),
+                Items = items
+            };
         }
 
         public async Task<bool> PatchStatus(TicketStatusEnum status, int ticketId)
