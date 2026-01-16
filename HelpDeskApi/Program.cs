@@ -1,4 +1,6 @@
 using HelpDeskApi.Data;
+using HelpDeskApi.Repositories;
+using HelpDeskApi.Repositories.Interfaces;
 using HelpDeskApi.Service;
 using HelpDeskApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,6 +20,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();

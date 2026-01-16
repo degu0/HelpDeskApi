@@ -1,34 +1,31 @@
-﻿using HelpDeskApi.Data;
-using HelpDeskApi.Model;
-using Microsoft.EntityFrameworkCore;
+﻿using HelpDeskApi.Model;
+using HelpDeskApi.Repositories.Interfaces;
 
 namespace HelpDeskApi.Service
 {
     public class DepartmentService : IDepartmentService
     {
-        private readonly AppDbContext _context;
-        public DepartmentService(AppDbContext context)
+        private readonly IDepartmentRepository _departmentRepository;
+        public DepartmentService(IDepartmentRepository departmentRepository)
         {
-            _context = context;
+            _departmentRepository = departmentRepository;
         }
 
         public async Task<Department> CreateDepartment(Department department)
         {
-            _context.Departments.Add(department);
-            await _context.SaveChangesAsync();
-            return department;
+            return await _departmentRepository.CreateAsync(department);
         }
 
         public async Task<List<Department>> GetAll()
         {
-            return await _context.Departments.ToListAsync();
+            return await _departmentRepository.GetAllAsync();
         }
 
         public async Task<Department> GetById(int id)
         {
-            var department = await _context.Departments.FindAsync(id);
+            var department = await _departmentRepository.GetByIdAsync(id);
 
-            return department == null ? throw new Exception() : department;
+            return department ?? throw new Exception("Departamento não encontrado.");
         }
     }
 }
