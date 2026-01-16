@@ -21,18 +21,9 @@ namespace HelpDeskApi.Repositories
             return user;
         }
 
-        public async Task<List<ResponseUserDto>> GetAllAsync()
+        public async Task<List<User>> GetAllAsync()
         {
-            return await _context.Users
-            .Select(user => new ResponseUserDto
-            {
-                Id = user.Id,
-                Name = user.Name,
-                Email = user.Email,
-                Department = user.Department.Name,
-                CreatedAt = user.CreatedAt,
-            })
-            .ToListAsync();
+            return await _context.Users.ToListAsync();
         }
 
         public async Task<int> GetDepartmentIdAsync(int id)
@@ -42,18 +33,10 @@ namespace HelpDeskApi.Repositories
             return user != null ? user.DepartmentId : 0;
         }
 
-        public async Task<ResponseUserDto?> GetByIdAsync(int id)
+        public async Task<User?> GetByIdAsync(int id)
         {
             return await _context.Users
                     .Where(user => user.Id == id)
-                    .Select(user => new ResponseUserDto
-                    {
-                        Id = user.Id,
-                        Name = user.Name,
-                        Email = user.Email,
-                        Department = user.Department.Name,
-                        CreatedAt = user.CreatedAt
-                    })
                     .FirstOrDefaultAsync();
         }
     }

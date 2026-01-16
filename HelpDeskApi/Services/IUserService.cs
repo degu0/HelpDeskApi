@@ -13,6 +13,6 @@ namespace HelpDeskApi.Service
 
         Task<int> GetDepartmentByUser(int id);
 
-        Task<ResponseUserDto?> GetId(int id);
+        Task<ResponseUserDto?> GetById(int id);
     }
 }

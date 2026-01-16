@@ -1,5 +1,6 @@
 ﻿using HelpDeskApi.Data;
 using HelpDeskApi.DTOs;
+using HelpDeskApi.Mappers;
 using HelpDeskApi.Model;
 using HelpDeskApi.Repositories.Interfaces;
 using HelpDeskApi.Services;
@@ -36,7 +37,9 @@ public class UserService : IUserService
 
     public async Task<List<ResponseUserDto>> GetAll()
     {
-        return await _userRepository.GetAllAsync();
+        var users = await _userRepository.GetAllAsync();
+
+        return users.Select(UserMapper.ToResponseDto).ToList();
     }
 
     public async Task<int> GetDepartmentByUser(int id)
@@ -44,8 +47,13 @@ public class UserService : IUserService
         return await _userRepository.GetDepartmentIdAsync(id);
     }
 
-    public async Task<ResponseUserDto?> GetId(int id)
+    public async Task<ResponseUserDto?> GetById(int id)
     {
-        return await _userRepository.GetByIdAsync(id);
+        var user = await _userRepository.GetByIdAsync(id);
+
+        if (user == null)
+            return null;
+
+        return UserMapper.ToResponseDto(user);
     }
 }
