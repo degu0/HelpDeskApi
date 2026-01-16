@@ -1,6 +1,7 @@
 ﻿using HelpDeskApi.Data;
 using HelpDeskApi.DTOs;
 using HelpDeskApi.Model;
+using HelpDeskApi.Repositories.Interfaces;
 using HelpDeskApi.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -9,12 +10,12 @@ namespace HelpDeskApi.Service;
 
 public class UserService : IUserService
 {
-    private readonly AppDbContext _context;
+    private readonly IUserRepository _userRepository;
     private readonly IPasswordService _passwordService;
 
-    public UserService(AppDbContext context, IPasswordService passwordService)
+    public UserService(IUserRepository userRepository, IPasswordService passwordService)
     {
-        _context = context;
+        _userRepository = userRepository;
         _passwordService = passwordService;
     }
 
@@ -30,47 +31,21 @@ public class UserService : IUserService
             DepartmentId = dto.DepartmentId
         };
 
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
-        return user;
+        return await _userRepository.CreateAsync(user);
     }
 
     public async Task<List<ResponseUserDto>> GetAll()
     {
-        return await _context.Users
-            .Select(user => new ResponseUserDto
-            {
-                Id = user.Id,
-                Name = user.Name,
-                Email = user.Email,
-                Department = user.Department.Name,
-                CreatedAt = user.CreatedAt,
-            })
-            .ToListAsync();
+        return await _userRepository.GetAllAsync();
     }
 
     public async Task<int> GetDepartmentByUser(int id)
     {
-        var user = await _context.Users.FindAsync(id);
-
-        if (user is null)
-            return 0;
-
-        return user.DepartmentId;
+        return await _userRepository.GetDepartmentIdAsync(id);
     }
 
     public async Task<ResponseUserDto?> GetId(int id)
     {
-        return await _context.Users
-            .Where(user => user.Id == id)
-            .Select(user => new ResponseUserDto
-            {
-                Id = user.Id,
-                Name = user.Name,
-                Email = user.Email,
-                Department = user.Department.Name,
-                CreatedAt = user.CreatedAt
-            })
-            .FirstOrDefaultAsync();
+        return await _userRepository.GetByIdAsync(id);
     }
 }
