@@ -1,13 +1,9 @@
 ﻿using HelpDeskApi.Domain.Enum;
 using HelpDeskApi.DTOs;
-using HelpDeskApi.Model;
-using HelpDeskApi.Models;
 using HelpDeskApi.Service;
 using HelpDeskApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Net.NetworkInformation;
 using System.Security.Claims;
 
 namespace HelpDeskApi.Controllers
@@ -25,8 +21,6 @@ namespace HelpDeskApi.Controllers
             _service = service;
             _userService = userService;
         }
-
-
 
         [HttpGet]
         public async Task<IActionResult> GetTickets([FromQuery] int page = 1, [FromQuery] int pageSize = 10)

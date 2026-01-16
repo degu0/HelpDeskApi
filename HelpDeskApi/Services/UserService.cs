@@ -3,78 +3,74 @@ using HelpDeskApi.DTOs;
 using HelpDeskApi.Model;
 using HelpDeskApi.Services;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.JSInterop.Infrastructure;
+namespace HelpDeskApi.Service;
 
-namespace HelpDeskApi.Service
+
+public class UserService : IUserService
 {
-    public class UserService : IUserService
+    private readonly AppDbContext _context;
+    private readonly IPasswordService _passwordService;
+
+    public UserService(AppDbContext context, IPasswordService passwordService)
     {
-        private readonly AppDbContext _context;
-        private readonly IPasswordService _passwordService;
+        _context = context;
+        _passwordService = passwordService;
+    }
 
-        public UserService(AppDbContext context, IPasswordService passwordService)
+    public async Task<User> CreatedUser(CreateUserDto dto)
+    {
+        var passwordHash = _passwordService.HashPassword(dto.Password);
+
+        var user = new User
         {
-            _context = context;
-            _passwordService = passwordService;
-        }
+            Name = dto.Name,
+            Email = dto.Email,
+            PasswordHash = passwordHash,
+            DepartmentId = dto.DepartmentId
+        };
 
-        public async Task<User> CreatedUser(CreateUserDto dto)
-        {
-            var passwordHash = _passwordService.HashPassword(dto.Password);
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+        return user;
+    }
 
-            var user = new User
+    public async Task<List<ResponseUserDto>> GetAll()
+    {
+        return await _context.Users
+            .Select(user => new ResponseUserDto
             {
-                Name = dto.Name,
-                Email = dto.Email,
-                PasswordHash = passwordHash,
-                DepartmentId = dto.DepartmentId
-            };
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                Department = user.Department.Name,
+                CreatedAt = user.CreatedAt,
+            })
+            .ToListAsync();
+    }
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-            return user;
-        }
+    public async Task<int> GetDepartmentByUser(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
 
-        public async Task<List<ResponseUserDto>> GetAll()
-        {
-            return await _context.Users
-                .Select(user => new ResponseUserDto
-                {
-                    Id = user.Id,
-                    Name = user.Name,
-                    Email = user.Email,
-                    Department = user.Department.Name,
-                    CreatedAt = user.CreatedAt,
-                })
-                .ToListAsync();
-        }
+        if (user is null)
+            return 0;
 
-        public async Task<ResponseUserDto?> GetId(int id)
-        {
-            return await _context.Users
-                .Where(user => user.Id == id)
-                .Select(user => new ResponseUserDto
-                {
-                    Id = user.Id,
-                    Name = user.Name,
-                    Email = user.Email,
-                    Department = user.Department.Name,
-                    CreatedAt = user.CreatedAt
-                })
-                .FirstOrDefaultAsync();
-        }
+        return user.DepartmentId;
+    }
 
-        public async Task<int> GetDepartmentByUser(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
-
-            if(user is null)
-                return 0;
-
-            return user.DepartmentId;
-        }
-
+    public async Task<ResponseUserDto?> GetId(int id)
+    {
+        return await _context.Users
+            .Where(user => user.Id == id)
+            .Select(user => new ResponseUserDto
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                Department = user.Department.Name,
+                CreatedAt = user.CreatedAt
+            })
+            .FirstOrDefaultAsync();
     }
 }
