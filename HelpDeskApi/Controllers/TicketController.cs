@@ -155,7 +155,7 @@ namespace HelpDeskApi.Controllers
             if (!int.TryParse(userIdClaim, out var userId))
                 return Unauthorized();
 
-            var isValidTicket = await _service.GetConfirmationTicketByUser(userId, ticketId, "agent");
+            var isValidTicket = await _service.GetConfirmationTicketByUser(userId, ticketId, TicketUserRelation.AssignedTo);
 
             if (!isValidTicket)
                 return NotFound(new { mensagem = "Chamado não pertence ao usuario" });
@@ -177,7 +177,7 @@ namespace HelpDeskApi.Controllers
             if (!int.TryParse(userIdClaim, out var userId))
                 return Unauthorized();
 
-            var isValidTicket = await _service.GetConfirmationTicketByUser(userId, ticketId, "creat");
+            var isValidTicket = await _service.GetConfirmationTicketByUser(userId, ticketId, TicketUserRelation.CreatedBy);
 
             if (!isValidTicket)
                 return NotFound(new { mensagem = "Chamado não pertence ao usuario" });
@@ -199,12 +199,12 @@ namespace HelpDeskApi.Controllers
             if (!int.TryParse(userIdClaim, out var userId))
                 return Unauthorized();
 
-            var isValidTicket = await _service.GetConfirmationTicketByUser(userId, ticketId, "creat");
+            var isValidTicket = await _service.GetConfirmationTicketByUser(userId, ticketId, TicketUserRelation.CreatedBy);
 
             if (!isValidTicket)
                 return NotFound(new { mensagem = "Chamado não pertence ao usuario" });
 
-            var isValidStatusTicket = await _service.GetConfirmationTicketByStatus(userId, ticketId, TicketStatusEnum.Closed);
+            var isValidStatusTicket = await _service.GetConfirmationTicketByStatus(ticketId, TicketStatusEnum.Closed);
 
             if (!isValidStatusTicket)
                 return NotFound(new { mensagem = "Chamado não esta fechado!" });
@@ -227,7 +227,7 @@ namespace HelpDeskApi.Controllers
             if (!int.TryParse(userIdClaim, out var userId))
                 return Unauthorized();
 
-            var isValidTicket = await _service.GetConfirmationTicketByUser(userId, ticketId, "creat");
+            var isValidTicket = await _service.GetConfirmationTicketByUser(userId, ticketId, TicketUserRelation.CreatedBy);
 
             if (!isValidTicket)
                 return NotFound(new { mensagem = "Chamado não pertence ao usuario" });
@@ -241,8 +241,8 @@ namespace HelpDeskApi.Controllers
         }
 
         [Authorize]
-        [HttpPatch("{ticketId}/transfer")]
-        public async Task<IActionResult> TransferTicket(int ticketId)
+        [HttpPatch("{ticketId}/transfer/{newAgentId}")]
+        public async Task<IActionResult> TransferTicket(int ticketId, int newAgentId)
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -255,7 +255,7 @@ namespace HelpDeskApi.Controllers
             if (userDepartmentId != ticketDepartmentId)
                 return Unauthorized(new { mensagem = "O departamento do usuario não é o mesmo do chamado." });
 
-            var result = await _service.AssignTicket(ticketId, agentId);
+            var result = await _service.TransferAssingTicket(ticketId, newAgentId);
 
             if (result != "Chamado foi transferido com sucesso.")
                 return BadRequest(new { message = result });

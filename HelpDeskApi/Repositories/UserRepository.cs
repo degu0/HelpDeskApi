@@ -42,7 +42,7 @@ namespace HelpDeskApi.Repositories
             return user != null ? user.DepartmentId : 0;
         }
 
-        public async Task<ResponseUserDto> GetByIdAsync(int id)
+        public async Task<ResponseUserDto?> GetByIdAsync(int id)
         {
             return await _context.Users
                     .Where(user => user.Id == id)

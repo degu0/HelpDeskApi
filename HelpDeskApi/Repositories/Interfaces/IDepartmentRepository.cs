@@ -6,6 +6,6 @@ namespace HelpDeskApi.Repositories.Interfaces
     {
         Task<Department> CreateAsync(Department department);
         Task<List<Department>> GetAllAsync();
-        Task<Department> GetByIdAsync(int id);
+        Task<Department?> GetByIdAsync(int id);
     }
 }
