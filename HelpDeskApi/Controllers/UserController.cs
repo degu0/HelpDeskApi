@@ -33,7 +33,7 @@ namespace HelpDeskApi.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetId(int id)
         {
-            var user = await _service.GetId(id);
+            var user = await _service.GetById(id);
             if (user == null)
                 return NotFound(new { mensagem = "Usuario não encontrado." });
 
@@ -49,7 +49,7 @@ namespace HelpDeskApi.Controllers
             if (!int.TryParse(userId, out var id))
                 return Unauthorized();
 
-            var user = await _service.GetId(id);
+            var user = await _service.GetById(id);
             if (user == null)
                 return NotFound(new { mensagem = "Usuario não encontrado." });
 

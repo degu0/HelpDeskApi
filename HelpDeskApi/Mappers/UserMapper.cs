@@ -15,7 +15,6 @@ namespace HelpDeskApi.Mappers
                 Email = user.Email,
                 Department = user.Department.Name,
                 CreatedAt = user.CreatedAt
-            })
             };
         }
     }
