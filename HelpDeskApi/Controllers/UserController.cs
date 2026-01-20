@@ -14,9 +14,9 @@ namespace HelpDeskApi.Controllers
     {
         private readonly IUserService _service;
 
-        private readonly AuthService _authService;
-        private readonly JwtService _jwtService;
-        public UserController(IUserService service, AuthService authService, JwtService jwtService)
+        private readonly IAuthService _authService;
+        private readonly IJwtService _jwtService;
+        public UserController(IUserService service, IAuthService authService, IJwtService jwtService)
         {
             _service = service;
             _authService = authService;

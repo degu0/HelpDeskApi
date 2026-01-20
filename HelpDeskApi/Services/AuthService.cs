@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HelpDeskApi.Services
 {
-    public class AuthService
+    public class AuthService : IAuthService
     {
         private readonly AppDbContext _context;
         private readonly IPasswordService _passwordService;
