@@ -81,7 +81,7 @@ namespace HelpDeskApi.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetById_ShouldReturn200OK_WhenExistUser()
+        public async Task GetById_ShouldReturn200OK_WhenUserExists()
         {
             var user = new ResponseUserDto
             {
@@ -106,7 +106,7 @@ namespace HelpDeskApi.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetById_ShouldReturn404NotFound_WhenDontExistUser()
+        public async Task GetById_ShouldReturn404NotFound_WhenUserDoesNotExist()
         {
             _userServiceMock
                 .Setup(r => r.GetById(99))
@@ -115,5 +115,183 @@ namespace HelpDeskApi.Tests.Controllers
             await Assert.ThrowsAsync<Exception>(() => _controller.GetId(99));
         }
 
+
+        [Fact]
+        public async Task GetUser_ShouldReturnOk_WhenUserExists()
+        {
+            SetUserClaims("1");
+
+            var user = new ResponseUserDto 
+            {
+                Id = 1,
+                Name = "Lucas",
+                Email = "Lucas@gmail.com",
+                Department = "Marketing",
+                CreatedAt = DateTime.Now,
+            };
+
+            _userServiceMock
+                .Setup(r => r.GetById(1))
+                .ReturnsAsync(user);
+
+            var result = await _controller.GetUser();
+
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            Assert.Equal(user, okResult.Value);
+        }
+
+        [Fact]
+        public async Task GetUser_ShouldReturnUnauthorized_WhenUserIdIsInvalid()
+        {
+            SetUserClaims("abc");
+
+            var result = await _controller.GetUser();
+
+            Assert.IsType<UnauthorizedResult>(result);
+        }
+
+        [Fact]
+        public async Task GetUser_ShouldReturnNotFound_WhenUserDoesNotExist()
+        {
+            SetUserClaims("1");
+
+            _userServiceMock
+                .Setup(r => r.GetById(1))
+                .ReturnsAsync((ResponseUserDto?)null);
+
+            var result = await _controller.GetUser();
+
+            var notFound = Assert.IsType<NotFoundObjectResult>(result);
+            Assert.Equal("{ mensagem = Usuario não encontrado. }", notFound.Value.ToString());
+        }
+
+        [Fact]
+        public async Task CreatedUser_ShouldReturn201Created()
+        {
+            var dto = new CreateUserDto
+            {
+                Name = "Micael",
+                Email = "Micael@gmail.com",
+                Password = "123456",
+                DepartmentId = 1
+            };
+
+            var user = new User
+            {
+                Id = 10,
+                Name = "Gustavo",
+                Email = dto.Email,
+                DepartmentId = dto.DepartmentId
+            };
+
+            _userServiceMock
+                .Setup(r => r.CreatedUser(dto))
+                .ReturnsAsync(user);
+
+            var result = await _controller.CreatedUser(dto);
+
+            var createdResult = Assert.IsType<CreatedAtActionResult>(result);
+
+            var value = Assert.IsType<User>(createdResult.Value);
+
+            Assert.Equal(nameof(_controller.GetId), createdResult.ActionName);
+
+            Assert.NotNull(createdResult.RouteValues);
+            Assert.Equal(10, createdResult.RouteValues["id"]);
+
+            Assert.Equal(user, createdResult.Value);
+        }
+
+        [Fact]
+        public async Task CreatedUser_ShouldReturnUnauthorized_WhenEmailIsInvalid()
+        {
+            var dto = new CreateUserDto
+            {
+                Email = "email_invalido",
+                Name = "Gustavo",
+                Password = "123456",
+                DepartmentId = 1
+            };
+
+            var result = await _controller.CreatedUser(dto);
+
+            var unauthorized = Assert.IsType<UnauthorizedObjectResult>(result);
+
+            Assert.Contains("{ message = Email invalido. }", unauthorized.Value.ToString());
+
+            _userServiceMock.Verify(
+                s => s.CreatedUser(It.IsAny<CreateUserDto>()),
+                Times.Never
+            );
+        }
+
+        [Fact]
+        public async Task Login_ShouldReturn200Ok_AndToken()
+        {
+            var loginUser = new LoginUserDto
+            {
+                Email = "Jurandir@gmail.com",
+                Password = "123456"
+            };
+
+            var user = new User
+            {
+                Id = 1,
+                Email = loginUser.Email,
+                Name = "Jurandir"
+            };
+
+            _authServiceMock
+                .Setup(a => a.Login(loginUser))
+                .ReturnsAsync(user);
+
+            _jwtServiceMock
+                .Setup(s => s.GenerateToken(user))
+                .Returns("fake-jwt-token");
+
+            var result = await _controller.Login(loginUser);
+
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            Assert.Equal("{ token = fake-jwt-token }", okResult.Value.ToString());
+        }
+
+        [Fact]
+        public async Task Login_ShouldReturnUnauthorized_WhenEmailIsInvalid()
+        {
+            var loginUser = new LoginUserDto
+            {
+                Email = "Invalid Email",
+                Password = "123456"
+            };
+
+            var result = await _controller.Login(loginUser);
+
+            var unauthorized = Assert.IsType<UnauthorizedObjectResult>(result);
+            Assert.Contains("Email invalido", unauthorized.Value.ToString());
+
+            _authServiceMock.Verify(
+                a => a.Login(It.IsAny<LoginUserDto>()),
+                Times.Never
+            );
+        }
+
+        [Fact]
+        public async Task Login_ShouldReturnUnauthorized_WhenCredentialsAreInvalid()
+        {
+            var loginUser = new LoginUserDto
+            {
+                Email = "cleiton@gmail.com",
+                Password = "Password Erro"
+            };
+
+            _authServiceMock
+                .Setup(a => a.Login(loginUser))
+                .ReturnsAsync((User?)null);
+
+            var result = await _controller.Login(loginUser);
+
+            var unauthorized = Assert.IsType<UnauthorizedObjectResult>(result);
+            Assert.Contains("Email ou senha inválidos", unauthorized.Value.ToString());
+        }
     }
 }

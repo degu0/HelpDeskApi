@@ -61,7 +61,7 @@ namespace HelpDeskApi.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetById_ShouldReturn404NotFound_WhenDontExistDepartment()
+        public async Task GetById_ShouldReturn404NotFound_WhenDepartmentDoesNotExist()
         {
             _serviceMock
                 .Setup(r => r.GetById(99))
