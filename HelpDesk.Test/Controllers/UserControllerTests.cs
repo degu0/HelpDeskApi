@@ -79,5 +79,41 @@ namespace HelpDeskApi.Tests.Controllers
 
             Assert.Single(value);
         }
+
+        [Fact]
+        public async Task GetById_ShouldReturn200OK_WhenExistUser()
+        {
+            var user = new ResponseUserDto
+            {
+                Id = 1,
+                Name = "Milena",
+                Email = "Milena@gmail.com",
+                Department = "RH",
+                CreatedAt = DateTime.Now,
+            };
+
+            _userServiceMock
+                .Setup (r => r.GetById(user.Id))
+                .ReturnsAsync(user);
+
+            var result = await _controller.GetId(user.Id);
+
+            var okResult = Assert.IsType<OkObjectResult>(result);
+
+            var value = Assert.IsType< ResponseUserDto> (okResult.Value);
+
+            Assert.Equal("Milena", value.Name);
+        }
+
+        [Fact]
+        public async Task GetById_ShouldReturn404NotFound_WhenDontExistUser()
+        {
+            _userServiceMock
+                .Setup(r => r.GetById(99))
+                .ThrowsAsync(new Exception("Usuario não encontrado."));
+
+            await Assert.ThrowsAsync<Exception>(() => _controller.GetId(99));
+        }
+
     }
 }
