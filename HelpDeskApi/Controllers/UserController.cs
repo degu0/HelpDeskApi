@@ -33,11 +33,15 @@ namespace HelpDeskApi.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetId(int id)
         {
-            var user = await _service.GetById(id);
-            if (user == null)
+            try
+            {
+                var user = await _service.GetById(id);
+                return Ok(user);
+            }
+            catch (KeyNotFoundException)
+            {
                 return NotFound(new { mensagem = "Usuario não encontrado." });
-
-            return Ok(user);
+            }
         }
 
         [Authorize]

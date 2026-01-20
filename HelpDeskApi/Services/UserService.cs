@@ -52,7 +52,7 @@ public class UserService : IUserService
         var user = await _userRepository.GetByIdAsync(id);
 
         if (user == null)
-            return null;
+            throw new KeyNotFoundException("Usuário não encontrado.");
 
         return UserMapper.ToResponseDto(user);
     }
