@@ -179,7 +179,7 @@ namespace HelpDeskApi.Tests.Controllers
             var user = new User
             {
                 Id = 10,
-                Name = "Gustavo",
+                Name = dto.Name,
                 Email = dto.Email,
                 DepartmentId = dto.DepartmentId
             };

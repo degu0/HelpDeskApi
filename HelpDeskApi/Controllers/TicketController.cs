@@ -82,11 +82,11 @@ namespace HelpDeskApi.Controllers
             var ticketDepartmentId = await _service.GetDepartmentIdByTicket(ticketId);
 
             if (userDepartmentId != ticketDepartmentId)
-                return Unauthorized(new { mensagem = "O departamneto do usuario não é o mesmo do chamado." });
+                return Unauthorized(new { message = "O departamento do usuario não é o mesmo do chamado." });
 
             var result = await _service.AssignTicket(ticketId, agentId);
 
-            if (result != "Chamado foi atribuido com sucesso")
+            if (result != "Chamado foi atribuido com sucesso.")
                 return BadRequest(new { message = result });
 
             return Ok(new { message = result });
@@ -104,7 +104,7 @@ namespace HelpDeskApi.Controllers
             var tickets = await _service.GetTicketCreatedByUser(userId);
 
             if (tickets is null)
-                return Ok(new { mensagem = "A sua caixa de chamados esta vazio." });
+                return Ok(new { message = "A sua caixa de chamados esta vazia." });
 
             return Ok(tickets);
         }
@@ -121,7 +121,7 @@ namespace HelpDeskApi.Controllers
             var tickets = await _service.GetTicketAssignedByUser(agentId);
 
             if(tickets is null)
-                return Ok(new {mensagem = "A sua caixa de camados esta vazia."});
+                return Ok(new { message = "A sua caixa de chamados esta vazia."});
 
             return Ok(tickets);
         }
@@ -138,7 +138,7 @@ namespace HelpDeskApi.Controllers
             var tickets = await _service.GetTicketByStatus(status, userId);
 
             if (tickets is null)
-                return Ok(new { mensagem = "A sua caixa de camados esta vazia." });
+                return Ok(new { message = "A sua caixa de chamados esta vazia." });
 
             return Ok(tickets);
         }
