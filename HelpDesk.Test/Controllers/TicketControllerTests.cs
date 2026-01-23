@@ -133,7 +133,7 @@ namespace HelpDeskApi.Tests.Controllers
             var result = await _controller.GetById(99);
 
             var notFound = Assert.IsType<NotFoundObjectResult>(result);
-            Assert.Equal("{ mensagem = Chamado não encontrado. }", notFound.Value.ToString());
+            Assert.Equal("{ message = Chamado não encontrado. }", notFound.Value.ToString());
         }
 
         [Fact]
@@ -528,84 +528,514 @@ namespace HelpDeskApi.Tests.Controllers
         }
 
         [Fact]
-        public async Task PatchStatus_ShouldReturn200Ok_AndMessage() { }
+        public async Task PatchStatus_ShouldReturn200Ok_AndMessage() 
+        {
+            SetUserClaims("5");
+
+            TicketStatusEnum status = TicketStatusEnum.In_Progress;
+            int ticketId = 10;
+            TicketUserRelation relation = TicketUserRelation.AssignedTo;
+
+            _ticketServiceMock
+                .Setup(r => r.GetConfirmationTicketByUser(5, ticketId, relation))
+                .ReturnsAsync(true);
+
+            _ticketServiceMock
+                .Setup(t => t.PatchStatus(status, ticketId))
+                .ReturnsAsync(true);
+
+            var result = await _controller.PatchStatus(status, ticketId);
+
+            var okResult = Assert.IsType<OkObjectResult>(result);
+
+            Assert.Equal("{ message = Status alterado com sucesso. }", okResult.Value.ToString());
+        }
 
         [Fact]
-        public async Task PatchStatus_ShouldReturnBadRequest_WhenStatusIsInvalid() { }
+        public async Task PatchStatus_ShouldReturnBadRequest_WhenStatusIsInvalid() 
+        {
+            var result = await _controller.PatchStatus(TicketStatusEnum.Seen, 11);
+
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+
+            Assert.Equal("{ message = Status inválido. }", badRequestResult.Value.ToString());
+        }
 
         [Fact]
-        public async Task PatchStatus_ShouldReturnUnauthorized_WhenUserIdInvalid() { }
+        public async Task PatchStatus_ShouldReturnUnauthorized_WhenUserIdInvalid() 
+        {
+            SetUserClaims("abc");
+
+            var result = await _controller.PatchStatus(TicketStatusEnum.In_Progress, 10);
+
+            Assert.IsType<UnauthorizedResult>(result);
+        }
 
         [Fact]
-        public async Task PatchStatus_ShouldReturn404NotFound_WhenTicketIsNotByUser() { }
+        public async Task PatchStatus_ShouldReturn404NotFound_WhenTicketIsNotByUser() 
+        {
+            SetUserClaims("5");
+
+            _ticketServiceMock
+                .Setup(r => r.GetConfirmationTicketByUser(5, 10, TicketUserRelation.AssignedTo))
+                .ReturnsAsync(false);
+
+            var result = await _controller.PatchStatus(TicketStatusEnum.In_Progress, 10);
+
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+
+            Assert.Equal("{ message = Chamado não pertence ao usuario }", notFoundResult.Value.ToString());
+        }
 
         [Fact]
-        public async Task PatchStatus_ShouldReturnBadRequestAndMessage_WhenItWasNotUpdated() { }
+        public async Task PatchStatus_ShouldReturnBadRequestAndMessage_WhenItWasNotUpdated() 
+        {
+            SetUserClaims("5");
+
+            TicketStatusEnum status = TicketStatusEnum.In_Progress;
+            int ticketId = 10;
+            TicketUserRelation relation = TicketUserRelation.AssignedTo;
+
+            _ticketServiceMock
+                .Setup(r => r.GetConfirmationTicketByUser(5, ticketId, relation))
+                .ReturnsAsync(true);
+
+            _ticketServiceMock
+                .Setup(t => t.PatchStatus(status, ticketId))
+                .ReturnsAsync(false);
+
+            var result = await _controller.PatchStatus(status, ticketId);
+
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+
+            Assert.Equal("{ message = Não foi possível alterar o status. }", badRequestResult.Value.ToString());
+        }
 
         [Fact]
-        public async Task ClosedTicket_ShouldReturn200Ok_AndMessage() { }
+        public async Task ClosedTicket_ShouldReturn200Ok_AndMessage() 
+        {
+            SetUserClaims("6");
+
+            int ticketId = 10;
+            TicketUserRelation relation = TicketUserRelation.CreatedBy;
+
+            _ticketServiceMock
+                .Setup(r => r.GetConfirmationTicketByUser(6, ticketId, relation))
+                .ReturnsAsync(true);
+
+            _ticketServiceMock
+                .Setup(t => t.PatchStatus(TicketStatusEnum.Closed, ticketId))
+                .ReturnsAsync(true);
+
+            var result = await _controller.ClosedTicket(ticketId);
+
+            var okResult = Assert.IsType<OkObjectResult>(result);
+
+            Assert.Equal("{ message = Status fechado com sucesso. }", okResult.Value.ToString());
+        }
 
         [Fact]
-        public async Task ClosedTicket_ShouldReturnBadRequest_WhenStatusIsInvalid() { }
+        public async Task ClosedTicket_ShouldReturnUnauthorized_WhenUserIdInvalid() 
+        {
+            SetUserClaims("abc");
+
+            var result = await _controller.ClosedTicket(15);
+
+            Assert.IsType<UnauthorizedResult>(result);
+        }
 
         [Fact]
-        public async Task ClosedTicket_ShouldReturnUnauthorized_WhenUserIdInvalid() { }
+        public async Task ClosedTicket_ShouldReturn404NotFound_WhenTicketIsNotByUser()
+        {
+            SetUserClaims("6");
+
+            _ticketServiceMock
+                .Setup(r => r.GetConfirmationTicketByUser(6, 10, TicketUserRelation.CreatedBy))
+                .ReturnsAsync(false);
+
+            var result = await _controller.ClosedTicket(15);
+
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+
+            Assert.Equal("{ message = Chamado não pertence ao usuario }", notFoundResult.Value.ToString());
+        }
 
         [Fact]
-        public async Task ClosedTicket_ShouldReturn404NotFound_WhenTicketIsNotByUser() { }
+        public async Task ClosedTicket_ShouldReturnBadRequestAndMessage_WhenItWasNotUpdated()
+        {
+            SetUserClaims("6");
+
+            TicketStatusEnum status = TicketStatusEnum.Closed;
+            int ticketId = 10;
+            TicketUserRelation relation = TicketUserRelation.CreatedBy;
+
+            _ticketServiceMock
+                .Setup(r => r.GetConfirmationTicketByUser(6, ticketId, relation))
+                .ReturnsAsync(true);
+
+            _ticketServiceMock
+                .Setup(t => t.PatchStatus(status, ticketId))
+                .ReturnsAsync(false);
+
+            var result = await _controller.ClosedTicket(ticketId);
+
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+
+            Assert.Equal("{ message = Não foi possível alterar o status. }", badRequestResult.Value.ToString());
+        }
 
         [Fact]
-        public async Task ClosedTicket_ShouldReturnBadRequestAndMessage_WhenItWasNotUpdated() { }
+        public async Task ReopenTicket_ShouldReturn200Ok_AndMessage()
+        {
+            SetUserClaims("7");
+
+            int ticketId = 10;
+            TicketUserRelation relation = TicketUserRelation.CreatedBy;
+
+            _ticketServiceMock
+                .Setup(r => r.GetConfirmationTicketByUser(7, ticketId, relation))
+                .ReturnsAsync(true);
+
+            _ticketServiceMock
+                .Setup(c => c.GetConfirmationTicketByStatus(ticketId, TicketStatusEnum.Closed))
+                .ReturnsAsync(true);
+
+            _ticketServiceMock
+                .Setup(t => t.PatchStatus(TicketStatusEnum.In_Progress, ticketId))
+                .ReturnsAsync(true);
+
+            var result = await _controller.ReopenTicket(ticketId);
+
+            var okResult = Assert.IsType<OkObjectResult>(result);
+
+            Assert.Equal("{ message = Status reaberto com sucesso. }", okResult.Value.ToString());
+        }
 
         [Fact]
-        public async Task ReopenTicket_ShouldReturn200Ok_AndMessage() { }
+        public async Task ReopenTicket_ShouldReturnUnauthorized_WhenUserIdInvalid()
+        {
+            SetUserClaims("abc");
+
+            var result = await _controller.ReopenTicket(17);
+
+            Assert.IsType<UnauthorizedResult>(result);
+        }
 
         [Fact]
-        public async Task ReopenTicket_ShouldReturnBadRequest_WhenStatusIsInvalid() { }
+        public async Task ReopenTicket_ShouldReturn404NotFound_WhenTicketIsNotByUser()
+        {
+            SetUserClaims("7");
+
+            _ticketServiceMock
+                .Setup(r => r.GetConfirmationTicketByUser(7, 17, TicketUserRelation.CreatedBy))
+                .ReturnsAsync(false);
+
+            var result = await _controller.ReopenTicket(17);
+
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+
+            Assert.Equal("{ message = Chamado não pertence ao usuario }", notFoundResult.Value.ToString());
+        }
 
         [Fact]
-        public async Task ReopenTicket_ShouldReturnUnauthorized_WhenUserIdInvalid() { }
+        public async Task ReopenTicket_ShouldReturn404NotFound_WhenTicketIsNotClosed()
+        {
+            SetUserClaims("7");
+
+            TicketStatusEnum status = TicketStatusEnum.In_Progress;
+            int ticketId = 10;
+            TicketUserRelation relation = TicketUserRelation.CreatedBy;
+
+            _ticketServiceMock
+                .Setup(r => r.GetConfirmationTicketByUser(7, ticketId, relation))
+                .ReturnsAsync(true);
+
+            _ticketServiceMock
+                .Setup(c => c.GetConfirmationTicketByStatus(ticketId, TicketStatusEnum.Closed))
+                .ReturnsAsync(false);
+
+
+            var result = await _controller.ReopenTicket(ticketId);
+
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+
+            Assert.Equal("{ message = Chamado não esta fechado! }", notFoundResult.Value.ToString());
+        }
 
         [Fact]
-        public async Task ReopenTicket_ShouldReturn404NotFound_WhenTicketIsNotByUser() { }
+        public async Task ReopenTicket_ShouldReturnBadRequestAndMessage_WhenItWasNotUpdated()
+        {
+            SetUserClaims("7");
+
+            TicketStatusEnum status = TicketStatusEnum.In_Progress;
+            int ticketId = 10;
+            TicketUserRelation relation = TicketUserRelation.CreatedBy;
+
+            _ticketServiceMock
+                .Setup(r => r.GetConfirmationTicketByUser(7, ticketId, relation))
+                .ReturnsAsync(true);
+
+            _ticketServiceMock
+                .Setup(c => c.GetConfirmationTicketByStatus(ticketId, TicketStatusEnum.Closed))
+                .ReturnsAsync(true);
+
+            _ticketServiceMock
+                .Setup(t => t.PatchStatus(status, ticketId))
+                .ReturnsAsync(false);
+
+            var result = await _controller.ReopenTicket(ticketId);
+
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+
+            Assert.Equal("{ message = Não foi possível alterar o status. }", badRequestResult.Value.ToString());
+        }
 
         [Fact]
-        public async Task ReopenTicket_ShouldReturnBadRequestAndMessage_WhenItWasNotUpdated() { }
+        public async Task SoftDeleteTicket_ShouldReturn200Ok_AndMessage()
+        {
+            SetUserClaims("8");
+
+            int ticketId = 10;
+            TicketUserRelation relation = TicketUserRelation.CreatedBy;
+
+            _ticketServiceMock
+                .Setup(r => r.GetConfirmationTicketByUser(8, ticketId, relation))
+                .ReturnsAsync(true);
+
+            _ticketServiceMock
+                .Setup(t => t.PatchStatus(TicketStatusEnum.Archive, ticketId))
+                .ReturnsAsync(true);
+
+            var result = await _controller.SoftDeleteTicket(ticketId);
+
+            var okResult = Assert.IsType<OkObjectResult>(result);
+
+            Assert.Equal("{ message = Status reaberto com sucesso. }", okResult.Value.ToString());
+        }
 
         [Fact]
-        public async Task SoftDeleteTicket_ShouldReturn200Ok_AndMessage() { }
+        public async Task SoftDeleteTicket_ShouldReturnUnauthorized_WhenUserIdInvalid()
+        {
+            SetUserClaims("abc");
+
+            var result = await _controller.SoftDeleteTicket(20);
+
+            Assert.IsType<UnauthorizedResult>(result);
+        }
 
         [Fact]
-        public async Task SoftDeleteTicket_ShouldReturnBadRequest_WhenStatusIsInvalid() { }
+        public async Task SoftDeleteTicket_ShouldReturn404NotFound_WhenTicketIsNotByUser()
+        {
+            SetUserClaims("8");
+
+            _ticketServiceMock
+                .Setup(r => r.GetConfirmationTicketByUser(8, 20, TicketUserRelation.CreatedBy))
+                .ReturnsAsync(false);
+
+            var result = await _controller.SoftDeleteTicket(20);
+
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+
+            Assert.Equal("{ message = Chamado não pertence ao usuario }", notFoundResult.Value.ToString());
+        }
 
         [Fact]
-        public async Task SoftDeleteTicket_ShouldReturnUnauthorized_WhenUserIdInvalid() { }
+        public async Task SoftDeleteTicket_ShouldReturnBadRequestAndMessage_WhenItWasNotUpdated()
+        {
+            SetUserClaims("8");
+
+            TicketStatusEnum status = TicketStatusEnum.Archive;
+            int ticketId = 10;
+            TicketUserRelation relation = TicketUserRelation.CreatedBy;
+
+            _ticketServiceMock
+                .Setup(r => r.GetConfirmationTicketByUser(8, ticketId, relation))
+                .ReturnsAsync(true);
+
+            _ticketServiceMock
+                .Setup(t => t.PatchStatus(status, ticketId))
+                .ReturnsAsync(false);
+
+            var result = await _controller.SoftDeleteTicket(ticketId);
+
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+
+            Assert.Equal("{ message = Não foi possível alterar o status. }", badRequestResult.Value.ToString());
+        }
 
         [Fact]
-        public async Task SoftDeleteTicket_ShouldReturn404NotFound_WhenTicketIsNotByUser() { }
+        public async Task TransferTicket_ShouldReturn200Ok_AndMessage()
+        {
+            SetUserClaims("9");
+
+            int ticketId = 3;
+            int departmentId = 4;
+
+            _userServiceMock
+                .Setup(u => u.GetDepartmentByUser(9))
+                .ReturnsAsync(departmentId);
+
+            _ticketServiceMock
+                .Setup(t => t.GetDepartmentIdByTicket(ticketId))
+                .ReturnsAsync(departmentId);
+
+            _ticketServiceMock
+                .Setup(t => t.TransferAssingTicket(ticketId, 9))
+                .ReturnsAsync("Chamado foi transferido com sucesso.");
+
+            var result = await _controller.TransferTicket(ticketId, 9);
+
+            var okResult = Assert.IsType<OkObjectResult>(result);
+
+            Assert.Equal("{ message = Chamado foi transferido com sucesso. }", okResult.Value.ToString());
+        }
 
         [Fact]
-        public async Task SoftDeleteTicket_ShouldReturnBadRequestAndMessage_WhenItWasNotUpdated() { }
+        public async Task TransferTicket_ShouldReturnUnauthorized_WhenUserIdInvalid()
+        {
+            SetUserClaims("abc");
+
+            var result = await _controller.TransferTicket(15, 25);
+
+            Assert.IsType<UnauthorizedResult>(result);
+        }
 
         [Fact]
-        public async Task TransferTicket_ShouldReturn200Ok_AndMessage() { }
+        public async Task TransferTicket_ShouldReturnUnauthorized_WhenUserDepartmentIsNotEqualForTicketDeparment()
+        {
+            SetUserClaims("9");
+
+            int ticketId = 3;
+
+            _userServiceMock
+                .Setup(u => u.GetDepartmentByUser(9))
+                .ReturnsAsync(8);
+
+            _ticketServiceMock
+                .Setup(t => t.GetDepartmentIdByTicket(ticketId))
+                .ReturnsAsync(5);
+
+            var result = await _controller.TransferTicket(ticketId, 9);
+
+            var unauthorized = Assert.IsType<UnauthorizedObjectResult>(result);
+
+            Assert.Equal("{ message = O departamento do usuario não é o mesmo do chamado. }", unauthorized.Value.ToString());
+        }
 
         [Fact]
-        public async Task TransferTicket_ShouldReturnUnauthorized_WhenUserIdInvalid() { }
+        public async Task TransferTicket_ShouldReturnBadRequest_WhenTicketDoesNotExist()
+        {
+            SetUserClaims("9");
+
+            int ticketId = 3;
+            int departmentId = 4;
+
+            _userServiceMock
+                .Setup(u => u.GetDepartmentByUser(9))
+                .ReturnsAsync(departmentId);
+
+            _ticketServiceMock
+                .Setup(t => t.GetDepartmentIdByTicket(ticketId))
+                .ReturnsAsync(departmentId);
+
+            _ticketServiceMock
+                .Setup(t => t.TransferAssingTicket(ticketId, 9))
+                .ReturnsAsync("Chamado não encontrado.");
+
+            var result = await _controller.TransferTicket(ticketId, 9);
+
+            var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+
+            Assert.Equal("{ message = Chamado não encontrado. }", badRequest.Value.ToString());
+        }
 
         [Fact]
-        public async Task TransferTicket_ShouldReturnUnauthorized_WhenUserDepartmentIsNotEqualForTicketDeparment() { }
+        public async Task TransferTicket_ShouldReturnBadRequest_WhenTicketIsAssigned()
+        {
+            SetUserClaims("9");
+
+            int ticketId = 3;
+            int departmentId = 4;
+
+            _userServiceMock
+                .Setup(u => u.GetDepartmentByUser(9))
+                .ReturnsAsync(departmentId);
+
+            _ticketServiceMock
+                .Setup(t => t.GetDepartmentIdByTicket(ticketId))
+                .ReturnsAsync(departmentId);
+
+            _ticketServiceMock
+                .Setup(t => t.TransferAssingTicket(ticketId, 9))
+                .ReturnsAsync("Chamado não foi atribuida ainda.");
+
+            var result = await _controller.TransferTicket(ticketId, 9);
+
+            var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+
+            Assert.Equal("{ message = Chamado não foi atribuida ainda. }", badRequest.Value.ToString());
+        }
 
         [Fact]
-        public async Task TransferTicket_ShouldReturnBadRequest_WhenTicketDoesNotExist() { }
+        public async Task GetAllTicketByUser_ShouldReturn200Ok_AndListTickets()
+        {
+            SetUserClaims("10");
+
+            int departmentId = 1;
+
+            var assignedTickets = new List<ResponseTicketDto>
+            {
+                new ResponseTicketDto { Id = 1, Title = "Chamado A" }
+            };
+
+            var createdTickets = new List<ResponseTicketDto>
+            {
+                new ResponseTicketDto { Id = 2, Title = "Chamado B" }
+            };
+
+            var departmentTickets = new List<ResponseTicketDto>
+            {
+                new ResponseTicketDto { Id = 3, Title = "Chamado C" }
+            };
+
+            var dto = new TicketGroupedDto
+            {
+                AssignedToMe = assignedTickets,
+                CreatedByMe = createdTickets,
+                FromToMyDepartment = departmentTickets
+            };
+
+            _userServiceMock
+                .Setup(r => r.GetDepartmentByUser(10))
+                .ReturnsAsync(departmentId);
+
+            _ticketServiceMock
+                .Setup(t => t.GetTicketByUser(10, departmentId))
+                .ReturnsAsync(dto);
+
+            var result = await _controller.GetAllTicketByUser();
+
+            var okResult = Assert.IsType<OkObjectResult>(result);
+
+            var value = Assert.IsType<TicketGroupedDto>(okResult.Value);
+
+            Assert.Single(value.AssignedToMe);
+            Assert.Single(value.CreatedByMe);
+            Assert.Single(value.FromToMyDepartment);
+
+            Assert.Equal(1, value.AssignedToMe[0].Id);
+            Assert.Equal(2, value.CreatedByMe[0].Id);
+            Assert.Equal(3, value.FromToMyDepartment[0].Id);
+        }
 
         [Fact]
-        public async Task TransferTicket_ShouldReturnBadRequest_WhenTicketIsAssigned() { }
+        public async Task GetAllTicketByUser_ShouldReturnUnauthorized_WhenUserIdInvalid()
+        {
+            SetUserClaims("abc");
 
-        [Fact]
-        public async Task GetAllTicketByUser_ShouldReturn200Ok_AndListTickets() { }
+            var result = await _controller.GetAllTicketByUser();
 
-        [Fact]
-        public async Task GetAllTicketByUser_ShouldReturnUnauthorized_WhenUserIdInvalid() { }
+            Assert.IsType<UnauthorizedResult>(result);
+        }
     }
 }

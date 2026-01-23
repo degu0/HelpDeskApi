@@ -37,7 +37,7 @@ namespace HelpDeskApi.Controllers
         {
             var ticket = await _service.GetById(id);
             if(ticket == null)
-                return NotFound(new { mensagem = "Chamado não encontrado." });
+                return NotFound(new { message = "Chamado não encontrado." });
 
             return Ok(ticket);
         }
@@ -148,7 +148,7 @@ namespace HelpDeskApi.Controllers
         public async Task<IActionResult> PatchStatus([FromQuery] TicketStatusEnum status, int ticketId)
         {
             if(status != TicketStatusEnum.In_Progress && status != TicketStatusEnum.Resolved)
-                return BadRequest(new {mensagem = "Status inválido." });
+                return BadRequest(new { message = "Status inválido." });
 
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -158,14 +158,14 @@ namespace HelpDeskApi.Controllers
             var isValidTicket = await _service.GetConfirmationTicketByUser(userId, ticketId, TicketUserRelation.AssignedTo);
 
             if (!isValidTicket)
-                return NotFound(new { mensagem = "Chamado não pertence ao usuario" });
+                return NotFound(new { message = "Chamado não pertence ao usuario" });
 
             var updated = await _service.PatchStatus(status, ticketId);
 
             if(!updated)
-                return BadRequest(new { mensagem = "Não foi possível alterar o status." });
+                return BadRequest(new { message = "Não foi possível alterar o status." });
 
-            return Ok(new { mensagem = "Status alterado com sucesso." });
+            return Ok(new { message = "Status alterado com sucesso." });
         }
 
         [Authorize]
@@ -180,14 +180,14 @@ namespace HelpDeskApi.Controllers
             var isValidTicket = await _service.GetConfirmationTicketByUser(userId, ticketId, TicketUserRelation.CreatedBy);
 
             if (!isValidTicket)
-                return NotFound(new { mensagem = "Chamado não pertence ao usuario" });
+                return NotFound(new { message = "Chamado não pertence ao usuario" });
 
             var updated = await _service.PatchStatus(TicketStatusEnum.Closed, ticketId);
 
             if (!updated)
-                return BadRequest(new { mensagem = "Não foi possível alterar o status." });
+                return BadRequest(new { message = "Não foi possível alterar o status." });
 
-            return Ok(new { mensagem = "Status fechado com sucesso." });
+            return Ok(new { message = "Status fechado com sucesso." });
         }
 
         [Authorize]
@@ -202,19 +202,19 @@ namespace HelpDeskApi.Controllers
             var isValidTicket = await _service.GetConfirmationTicketByUser(userId, ticketId, TicketUserRelation.CreatedBy);
 
             if (!isValidTicket)
-                return NotFound(new { mensagem = "Chamado não pertence ao usuario" });
+                return NotFound(new { message = "Chamado não pertence ao usuario" });
 
             var isValidStatusTicket = await _service.GetConfirmationTicketByStatus(ticketId, TicketStatusEnum.Closed);
 
             if (!isValidStatusTicket)
-                return NotFound(new { mensagem = "Chamado não esta fechado!" });
+                return NotFound(new { message = "Chamado não esta fechado!" });
 
             var updated = await _service.PatchStatus(TicketStatusEnum.In_Progress, ticketId);
 
             if (!updated)
-                return BadRequest(new { mensagem = "Não foi possível alterar o status." });
+                return BadRequest(new { message = "Não foi possível alterar o status." });
 
-            return Ok(new { mensagem = "Status reaberto com sucesso." });
+            return Ok(new { message = "Status reaberto com sucesso." });
         }
 
 
@@ -230,14 +230,14 @@ namespace HelpDeskApi.Controllers
             var isValidTicket = await _service.GetConfirmationTicketByUser(userId, ticketId, TicketUserRelation.CreatedBy);
 
             if (!isValidTicket)
-                return NotFound(new { mensagem = "Chamado não pertence ao usuario" });
+                return NotFound(new { message = "Chamado não pertence ao usuario" });
 
             var updated = await _service.PatchStatus(TicketStatusEnum.Archive, ticketId);
 
             if (!updated)
-                return BadRequest(new { mensagem = "Não foi possível alterar o status." });
+                return BadRequest(new { message = "Não foi possível alterar o status." });
 
-            return Ok(new { mensagem = "Status reaberto com sucesso." });
+            return Ok(new { message = "Status reaberto com sucesso." });
         }
 
         [Authorize]
@@ -253,7 +253,7 @@ namespace HelpDeskApi.Controllers
             var ticketDepartmentId = await _service.GetDepartmentIdByTicket(ticketId);
 
             if (userDepartmentId != ticketDepartmentId)
-                return Unauthorized(new { mensagem = "O departamento do usuario não é o mesmo do chamado." });
+                return Unauthorized(new { message = "O departamento do usuario não é o mesmo do chamado." });
 
             var result = await _service.TransferAssingTicket(ticketId, newAgentId);
 

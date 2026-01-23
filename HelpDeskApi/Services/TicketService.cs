@@ -183,7 +183,7 @@ namespace HelpDeskApi.Services
             if (ticket == null)
                 return "Chamado não encontrado.";
 
-            if (ticket.AssignedAgentId is null)
+            if (ticket.AssignedAgentId == null)
                 return "Chamado não foi atribuida ainda.";
 
             ticket.AssignedAgentId = newAgentId;
