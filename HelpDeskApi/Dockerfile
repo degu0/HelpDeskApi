@@ -2,10 +2,9 @@
 
 # Esta fase é usada durante a execução no VS no modo rápido (Padrão para a configuração de Depuração)
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
-USER $APP_UID
 WORKDIR /app
-EXPOSE 5000
-EXPOSE 5001
+EXPOSE 8000
+EXPOSE 8001
 
 
 # Esta fase é usada para compilar o projeto de serviço

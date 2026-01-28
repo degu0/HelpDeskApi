@@ -1,0 +1,35 @@
+services:
+  helpdeskapi:
+    container_name: helpdesk.api
+    build:
+      context: HelpDeskApi
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+    depends_on:
+      - helpdesk.database
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      ASPNETCORE_URLS: http://+:8000
+      ConnectionStrings__Database: Host=helpdesk.database;Port=5432;Database=helpdeskapi;Username=postgres;Password=postgres
+    networks:
+      - helpdesk-network
+  helpdesk.database:
+    image: postgres:16
+    container_name: helpdesk.database
+    environment:
+      POSTGRES_DB: helpdeskapi
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - helpdesk-network
+volumes:
+  pgdata:
+networks:
+  helpdesk-network:
+    driver: bridge

@@ -1,4 +1,7 @@
 <Solution>
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
   <Project Path="HelpDesk.Test/HelpDeskApi.Tests.csproj" Id="665e2b94-63dd-4934-8c6c-978c24fe8abc" />
   <Project Path="HelpDeskApi/HelpDeskApi.csproj" />
 </Solution>
